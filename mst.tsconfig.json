@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "outDir": "./dist/mst",
+    "rootDir": "./lib/mst",
+    "emitDeclarationOnly": true,
+    "incremental": false,
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["dom", "esnext"],
+    "importHelpers": true,
+    "declaration": true,
+    "noImplicitThis": true,
+    "downlevelIteration": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  },
+  "include": ["lib/mst"]
+}

@@ -1,0 +1,58 @@
+{
+  "name": "mobx-query",
+  "version": "0.1.0",
+  "description": "Generate mobx or mobx-state-tree models based on a model and action schema",
+  "bin": {
+    "mobx-query": "bin/cli"
+  },
+  "scripts": {
+    "format": "prettier --write **/*.{js,ts,tsx,json}",
+    "build": "./build_lib.sh",
+    "prepublishOnly": "yarn test && yarn build",
+    "test": "jest"
+  },
+  "files": [
+    "tsconfig.json",
+    "build",
+    "dist",
+    "LICENSE",
+    "readme.md",
+    "bin"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "gluegun": "latest"
+  },
+  "peerDependencies": {
+    "mobx": "^6.2.0",
+    "mobx-react": "^7.1.0",
+    "mobx-state-tree": "^5.0.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^11.2.2",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^12.7.11",
+    "@types/react": "^17.0.2",
+    "jest": "^27.0.5",
+    "mobx": "^6.2.0",
+    "mobx-react": "^7.1.0",
+    "mobx-state-tree": "^5.0.1",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-error-boundary": "^3.1.0",
+    "ts-jest": "^27.0.3",
+    "tslib": "^2.3.0",
+    "tsup": "^4.8.21",
+    "typescript": "^4.3.4"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  }
+}

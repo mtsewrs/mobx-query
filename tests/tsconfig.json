@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": false,
+    "module": "commonjs",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "sourceMap": false,
+    "inlineSourceMap": true,
+    "outDir": "build",
+    "strict": false,
+    "target": "ESNext",
+    "declaration": true,
+    "downlevelIteration": true
+  },
+  "exclude": ["node_modules", "build", "dist"]
+}
