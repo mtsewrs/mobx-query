@@ -5,19 +5,19 @@ import { makeObservable, observable, computed, action } from 'mobx'
 import { RootStoreBase } from './root.base'
 import { BookType } from '../BookModel'
 
-const knownProperties = ['typename', 'id', 'name', 'books']
+const knownProperties = [ 'typename',  'id',  'name',  'books', ]
 
 export class BookTagModelBase {
   store?: RootStoreBase
-  relationNames?: string[] = ['books']
-  typename?: string = null
-  id: string
-  name?: string = null
-  books_id?: string[] = []
-  get books(): BookType[] | undefined {
-    return this.books_id.map(id => this.store.books.get(id))
-  }
-
+ relationNames?: string[] = [ 'books', ]
+    typename?: string = null
+        	id: string
+        name?: string = null
+        books_id?: string[] = []
+    get books(): BookType[] | undefined {
+      return this.books_id.map( id => this.store.books.get(id))
+    }
+    
   constructor(store: RootStoreBase, data: any) {
     this.store = store
     const keys = Object.keys(data)
@@ -37,7 +37,7 @@ export class BookTagModelBase {
           this[relationKey] = fieldData.id
         }
       } else {
-        if (knownProperties.includes(key)) {
+        if(knownProperties.includes(key)) {
           this[key] = fieldData
         }
       }
@@ -48,11 +48,11 @@ export class BookTagModelBase {
     makeObservable(this, {
       store: observable,
       update: action,
-      typename: observable,
-      id: observable,
-      name: observable,
-      books_id: observable,
-      books: computed
+          typename: observable,
+          id: observable,
+          name: observable,
+          books_id: observable,
+          books: computed,
     })
   }
 

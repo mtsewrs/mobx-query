@@ -1,11 +1,13 @@
 import { BookTagModelBase } from './base/BookTagModel.base'
+import { RootStoreBase, Data } from './base/root.base'
 
 export type BookTagType = BookTagModel
 
-export type BookTagData = Omit<BookTagType, 'update' | 'books'>
+export type BookTagData = Omit<BookTagType, 'update' | 'books' 
+>
 
 export class BookTagModel extends BookTagModelBase {
-  constructor(store: any, data: any) {
+  constructor(store: RootStoreBase, data: Data) {
     super(store, data)
   }
 }

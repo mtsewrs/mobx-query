@@ -3,9 +3,10 @@ import { UserModelBase } from './base/UserModel.base'
 
 export interface UserType extends Instance<typeof UserModel> {}
 
-export const UserModel = UserModelBase.actions(self => ({
-  // This is an auto-generated example action.
-  log() {
-    console.log(JSON.stringify(self))
-  }
-}))
+export const UserModel = UserModelBase
+  .actions(self => ({
+    // This is an auto-generated example action.
+    log() {
+      console.log(JSON.stringify(self))
+    }
+  }))

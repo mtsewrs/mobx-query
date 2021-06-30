@@ -7,36 +7,28 @@ import { UserType } from '../UserModel'
 import { PublisherType } from '../PublisherModel'
 import { BookTagType } from '../BookTagModel'
 
-const knownProperties = [
-  'typename',
-  'id',
-  'title',
-  'author',
-  'publisher',
-  'tags',
-  'metaArrayOfStrings'
-]
+const knownProperties = [ 'typename',  'id',  'title',  'author',  'publisher',  'tags',  'metaArrayOfStrings', ]
 
 export class BookModelBase {
   store?: RootStoreBase
-  relationNames?: string[] = ['author', 'publisher', 'tags']
-  typename?: string = null
-  id: string
-  title?: string = null
-  author_id?: string = null
-  get author(): UserType | undefined {
-    return this.store.users.get(this.author_id)
-  }
-  publisher_id?: string = null
-  get publisher(): PublisherType | undefined {
-    return this.store.publishers.get(this.publisher_id)
-  }
-  tags_id?: string[] = []
-  get tags(): BookTagType[] | undefined {
-    return this.tags_id.map(id => this.store.booktags.get(id))
-  }
-  metaArrayOfStrings?: any = null
-
+ relationNames?: string[] = [ 'author',  'publisher',  'tags', ]
+    typename?: string = null
+        	id: string
+        title?: string = null
+        author_id?: string = null
+    get author(): UserType | undefined {
+      return this.store.users.get(this.author_id)
+    }
+        publisher_id?: string = null
+    get publisher(): PublisherType | undefined {
+      return this.store.publishers.get(this.publisher_id)
+    }
+        tags_id?: string[] = []
+    get tags(): BookTagType[] | undefined {
+      return this.tags_id.map( id => this.store.booktags.get(id))
+    }
+        metaArrayOfStrings?: any = null
+    
   constructor(store: RootStoreBase, data: any) {
     this.store = store
     const keys = Object.keys(data)
@@ -56,7 +48,7 @@ export class BookModelBase {
           this[relationKey] = fieldData.id
         }
       } else {
-        if (knownProperties.includes(key)) {
+        if(knownProperties.includes(key)) {
           this[key] = fieldData
         }
       }
@@ -67,16 +59,16 @@ export class BookModelBase {
     makeObservable(this, {
       store: observable,
       update: action,
-      typename: observable,
-      id: observable,
-      title: observable,
-      author_id: observable,
-      author: computed,
-      publisher_id: observable,
-      publisher: computed,
-      tags_id: observable,
-      tags: computed,
-      metaArrayOfStrings: observable
+          typename: observable,
+          id: observable,
+          title: observable,
+          author_id: observable,
+          author: computed,
+          publisher_id: observable,
+          publisher: computed,
+          tags_id: observable,
+          tags: computed,
+          metaArrayOfStrings: observable,
     })
   }
 

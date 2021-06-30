@@ -24,7 +24,7 @@ yarn add mobx-query mobx mobx-react react react-dom
 
 mobx-query requires a cosmiconfig file see https://github.com/davidtheclark/cosmiconfig
 
-The options are as in typescript types below, example file in tests/mobx-query.config.js
+The options are as in typescript types below
 
 ```ts
 type Types =
@@ -41,18 +41,23 @@ type Types =
   | 'json'
 
 interface Models {
-  [key: string]: {
-    [key: string]: [Types, string?]
+  [ModelName: string]: {
+    [property: string]: [Types, string?]
   }
 }
 
 interface Actions {
-  [key: string]: {
-    [key: string]: {
+  [path: string]: {
+    [action: string]: {
+      /*
+        Typescript return type like '{ users: UserType[] }'.
+        Models will have "Type" prefix so you can refer to them for example
+        model name "User" exports type "UserType"
+      */
       returnType: string
       type: 'query' | 'mutation'
       args: {
-        [key: string]: {
+        [arg: string]: {
           type: string
           required: boolean
         }
@@ -66,6 +71,65 @@ export interface Options {
   force?: boolean
   actions?: Actions
   models: Models
+}
+```
+
+Example config
+
+```js
+module.exports = {
+  models: {
+    User: {
+      typename: ['string'], // important
+      id: ['id'],
+      created_at: ['string'],
+      updated_at: ['date'],
+      name: ['string'],
+      email: ['string'],
+      password: ['string'],
+      books: ['ref[]', 'Book'],
+      friend: ['ref', 'User'],
+    },
+    Book: {
+      typename: ['string'], // important
+      id: ['id'],
+      title: ['string'],
+      author: ['ref', 'User'],
+      publisher: ['ref', 'Publisher'],
+      tags: ['ref[]', 'BookTag'],
+      metaArrayOfStrings: ['json'],
+    },
+  },
+  actions: {
+    user: {
+      getUser: {
+        args: {
+          id: {
+            type: 'string',
+          },
+        },
+        returnType: 'UserType',
+        type: 'query',
+      },
+      getUsers: {
+        returnType: '{ users: UserType[] }',
+        type: 'query',
+        path: 'user',
+      },
+      login: {
+        args: {
+          password: {
+            type: 'string',
+          },
+          email: {
+            type: 'string',
+          },
+        },
+        returnType: 'UserType',
+        type: 'mutate',
+      },
+    },
+  },
 }
 ```
 

@@ -3,9 +3,11 @@ import { RootStoreBase, Data } from './base/root.base'
 
 export type UserType = UserModel
 
-export type UserData = Omit<
-  UserType,
-  'update' | 'books' | 'friend' | 'favouriteBook'
+export type UserData = Omit<UserType, 'update' | 'books' 
+
+ | 'friend'
+
+ | 'favouriteBook'
 >
 
 export class UserModel extends UserModelBase {

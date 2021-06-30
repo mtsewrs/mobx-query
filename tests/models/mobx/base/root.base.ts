@@ -2,63 +2,52 @@
 /* eslint-disable */
 /* tslint:disable */
 import { observable, makeObservable } from 'mobx'
-import {
-  MQStore,
-  QueryOptions,
-  StoreOptions,
-  setTypes,
-  getCollectionName
-} from '../../../../lib/mobx'
+import { MQStore, QueryOptions, StoreOptions, setTypes, getCollectionName } from '../../../../lib/mobx'
 import { UserModel, UserData, UserType } from '../UserModel'
 import { BookModel, BookData, BookType } from '../BookModel'
 import { BookTagModel, BookTagData, BookTagType } from '../BookTagModel'
 import { PublisherModel, PublisherData, PublisherType } from '../PublisherModel'
 
-const knownTypes: any = [
-  ['User', () => UserModel],
-  ['Book', () => BookModel],
-  ['BookTag', () => BookTagModel],
-  ['Publisher', () => PublisherModel]
-]
-const rootTypes = ['User', 'Book', 'BookTag', 'Publisher']
+const knownTypes: any = [ ['User', () => UserModel],  ['Book', () => BookModel],  ['BookTag', () => BookTagModel],  ['Publisher', () => PublisherModel], ]
+const rootTypes = [ 'User',  'Book',  'BookTag',  'Publisher', ]
 export interface Data {
-  users?: {
-    [key: string]: {
-      [key in keyof UserData]: UserData[key]
+    users?: {
+      [key: string]: {
+        [key in keyof UserData]: UserData[key]
+      }
     }
-  }
-  books?: {
-    [key: string]: {
-      [key in keyof BookData]: BookData[key]
+    books?: {
+      [key: string]: {
+        [key in keyof BookData]: BookData[key]
+      }
     }
-  }
-  booktags?: {
-    [key: string]: {
-      [key in keyof BookTagData]: BookTagData[key]
+    booktags?: {
+      [key: string]: {
+        [key in keyof BookTagData]: BookTagData[key]
+      }
     }
-  }
-  publishers?: {
-    [key: string]: {
-      [key in keyof PublisherData]: PublisherData[key]
+    publishers?: {
+      [key: string]: {
+        [key in keyof PublisherData]: PublisherData[key]
+      }
     }
-  }
 }
 
 export class RootStoreBase extends MQStore {
-  users = observable.map<string, UserType>()
-  books = observable.map<string, BookType>()
-  booktags = observable.map<string, BookTagType>()
-  publishers = observable.map<string, PublisherType>()
+    users = observable.map<string, UserType>()
+    books = observable.map<string, BookType>()
+    booktags = observable.map<string, BookTagType>()
+    publishers = observable.map<string, PublisherType>()
   kt: Map<any, any>
   rt: Set<any>
 
   constructor(options: StoreOptions, data: Data) {
     super(options)
     makeObservable(this, {
-      users: observable,
-      books: observable,
-      booktags: observable,
-      publishers: observable
+    users: observable,
+    books: observable,
+    booktags: observable,
+    publishers: observable,
     })
 
     const kt = new Map()
@@ -81,37 +70,21 @@ export class RootStoreBase extends MQStore {
     return snapshot
   }
 
-  queryViewer(variables?: {}, options: QueryOptions = {}) {
-    return this.query<UserType>('user', 'viewer', variables, options)
-  }
-  queryGetUser(variables: { id: string }, options: QueryOptions = {}) {
-    return this.query<UserType>('user', 'getUser', variables, options)
-  }
-  queryGetUsers(variables?: {}, options: QueryOptions = {}) {
-    return this.query<{ users: UserType[] }>(
-      'user',
-      'getUsers',
-      variables,
-      options
-    )
-  }
-  mutateCreateUser(
-    variables: { password: string; email: string },
-    optimisticUpdate?: (store: RootStoreBase) => void
-  ) {
-    return this.mutate<UserType>(
-      'user',
-      'createUser',
-      variables,
-      optimisticUpdate
-    )
-  }
-  mutateLogin(
-    variables: { password: string; email: string },
-    optimisticUpdate?: (store: RootStoreBase) => void
-  ) {
-    return this.mutate<UserType>('user', 'login', variables, optimisticUpdate)
-  }
+    queryViewer(variables?: {}, options: QueryOptions = {}) {
+      return this.query<UserType>('user', 'viewer', variables, options)
+    }
+    queryGetUser(variables: { id: string, }, options: QueryOptions = {}) {
+      return this.query<UserType>('user', 'getUser', variables, options)
+    }
+    queryGetUsers(variables?: {}, options: QueryOptions = {}) {
+      return this.query<{ users: UserType[] }>('user', 'getUsers', variables, options)
+    }
+    mutateCreateUser(variables: { password: string,  email: string, }, optimisticUpdate?: (store: RootStoreBase) => void) {
+      return this.mutate<UserType>('user', 'createUser', variables, optimisticUpdate)
+    }
+    mutateLogin(variables: { password: string,  email: string, }, optimisticUpdate?: (store: RootStoreBase) => void) {
+      return this.mutate<UserType>('user', 'login', variables, optimisticUpdate)
+    }
 
   isKnownType(typename: string): boolean {
     return this.kt.has(typename)
