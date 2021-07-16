@@ -1,12 +1,9 @@
 {
   "compilerOptions": {
     "jsx": "react",
-    "outDir": "./dist/mobx",
-    "rootDir": "./lib/mobx",
-    "emitDeclarationOnly": true,
+    "outDir": "./dist",
+    "rootDir": "./lib",
     "incremental": false,
-    "target": "esnext",
-    "module": "commonjs",
     "lib": ["dom", "esnext"],
     "importHelpers": true,
     "declaration": true,
@@ -15,8 +12,7 @@
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
     "esModuleInterop": true
   },
-  "include": ["lib/mobx"]
+  "include": ["lib"]
 }
