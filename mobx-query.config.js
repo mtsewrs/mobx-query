@@ -3,44 +3,77 @@ module.exports = {
   out: 'tests/models',
   models: {
     User: {
-      typename: ['string'],
-      id: ['id'],
-      created_at: ['string'],
-      updated_at: ['date'],
-      name: ['string'],
-      email: ['string'],
-      password: ['string'],
-      books: ['ref[]', 'Book'],
-      friend: ['ref', 'User'],
-      favouriteBook: ['ref', 'Book'],
+      created_at: {
+        type: 'string',
+      },
+      updated_at: {
+        type: 'string',
+      },
+      name: {
+        type: 'string',
+      },
+      email: {
+        type: 'string',
+      },
+      password: {
+        type: 'string',
+      },
+      books: {
+        type: 'ref[]',
+        ref: 'Book',
+      },
+      friend: {
+        type: 'ref',
+        ref: 'User',
+      },
+      favouriteBook: {
+        type: 'ref',
+        ref: 'Book',
+      },
     },
     Book: {
-      typename: ['string'],
-      id: ['id'],
-      title: ['string'],
-      author: ['ref', 'User'],
-      publisher: ['ref', 'Publisher'],
-      tags: ['ref[]', 'BookTag'],
-      metaArrayOfStrings: ['json'],
+      title: {
+        type: 'string',
+      },
+      author: {
+        type: 'ref',
+        ref: 'User',
+      },
+      publisher: {
+        type: 'ref',
+        ref: 'Publisher',
+      },
+      tags: {
+        type: 'ref[]',
+        ref: 'BookTag',
+      },
+      metaArrayOfStrings: {
+        type: 'any',
+      },
     },
     BookTag: {
-      typename: ['string'],
-      id: ['id'],
-      name: ['string'],
-      books: ['ref[]', 'Book'],
+      name: {
+        type: 'string',
+      },
+      books: {
+        type: 'ref[]',
+        ref: 'Book',
+      },
     },
     Publisher: {
-      typename: ['string'],
-      id: ['id'],
-      name: ['string'],
-      books: ['ref[]', 'Book'],
+      name: {
+        type: 'string',
+      },
+      books: {
+        type: 'ref[]',
+        ref: 'Book',
+      },
     },
   },
   actions: {
     user: {
       viewer: {
-        returnType: 'UserType',
-        type: 'query',
+        type: 'UserType',
       },
       getUser: {
         args: {
@@ -48,13 +81,10 @@ module.exports = {
             type: 'string',
           },
         },
-        returnType: 'UserType',
-        type: 'query',
+        type: 'UserType',
       },
       getUsers: {
-        returnType: '{ users: UserType[] }',
-        type: 'query',
-        path: 'user',
+        type: '{ users: UserType[] }',
       },
       createUser: {
         args: {
@@ -65,8 +95,7 @@ module.exports = {
             type: 'string',
           },
         },
-        returnType: 'UserType',
-        type: 'mutate',
+        type: 'UserType',
       },
       login: {
         args: {
@@ -77,8 +106,7 @@ module.exports = {
             type: 'string',
           },
         },
-        returnType: 'UserType',
-        type: 'mutate',
+        type: 'UserType',
       },
     },
   },

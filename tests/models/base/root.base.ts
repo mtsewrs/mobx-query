@@ -46,7 +46,6 @@ export interface Data {
 
 export interface Snapshot extends Data {
   __queryCacheData?: Map<string, any>
-  __queryCache?: Map<string, any>
 }
 
 export class RootStoreBase extends MQStore {
@@ -102,22 +101,17 @@ export class RootStoreBase extends MQStore {
       options
     )
   }
-  mutateCreateUser(
+  queryCreateUser(
     variables: { password: string; email: string },
-    optimisticUpdate?: (store: RootStoreBase) => void
+    options: QueryOptions = {}
   ) {
-    return this.mutate<UserType>(
-      'user',
-      'createUser',
-      variables,
-      optimisticUpdate
-    )
+    return this.query<UserType>('user', 'createUser', variables, options)
   }
-  mutateLogin(
+  queryLogin(
     variables: { password: string; email: string },
-    optimisticUpdate?: (store: RootStoreBase) => void
+    options: QueryOptions = {}
   ) {
-    return this.mutate<UserType>('user', 'login', variables, optimisticUpdate)
+    return this.query<UserType>('user', 'login', variables, options)
   }
 
   isKnownType(typename: string): boolean {

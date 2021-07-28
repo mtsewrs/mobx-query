@@ -10,26 +10,24 @@ export const buildModels = (schema_models: any): void => {
     const types = Object.keys(schema_models[modelName])
     for (let j = 0; j < types.length; j++) {
       const property = types[j]
-      const [type, ref] = properties[property]
+      const { type, ref } = properties[property]
       if (!schema.models.has(modelName)) {
         schema.models.set(modelName, {
           types: [
             {
               name: property,
               type,
-              ref
-            }
+              ref,
+            },
           ],
-          hasJson: type === 'json',
           name: modelName,
           relations: ref ? [ref] : [],
-          relationNames: ref ? [property] : []
+          relationNames: ref ? [property] : [],
         })
       } else {
         const model = schema.models.get(modelName)
         schema.models.set(modelName, {
           ...model,
-          hasJson: model.hasJson ? model.hasJson : type === 'json',
           relations: ref
             ? [...model.relations, ref].filter((v, i, a) => a.indexOf(v) === i)
             : model.relations,
@@ -43,9 +41,9 @@ export const buildModels = (schema_models: any): void => {
             {
               name: property,
               type,
-              ref
-            }
-          ]
+              ref,
+            },
+          ],
         })
       }
     }

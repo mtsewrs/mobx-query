@@ -75,7 +75,7 @@ export class Query<T = unknown> implements PromiseLike<T> {
 
     const store = this.getStore()
 
-    if (store.ssr && !this.options.noSsr && (isServer || !store.__afterInit)) {
+    if (store.ssr && !this.options.noSsr && isServer) {
       fetchPolicy = 'cache-first'
     }
     this.fetchPolicy = fetchPolicy

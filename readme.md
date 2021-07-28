@@ -1,87 +1,29 @@
 # Mobx Query
 
-**DO NOT USE**
+**DO NOT USE, NOT STABLE**
 
 Generates typescript mst or mobx models and a react client to query your json rpc api
 
-> In order for your models to work your database must return a "typename" property
+> In order for your models to work your database must have a "typename" and "id" property
 
 ## Installation
 
-for mobx-state-tree
-
 ```bash
-yarn add mobx-query mobx mobx-react mobx-state-tree react react-dom
-```
-
-for mobx only
-
-```bash
-yarn add mobx-query mobx mobx-react react react-dom
+yarn add mobx-query mobx mobx-react-lite react react-dom
 ```
 
 ## Config
 
 mobx-query requires a cosmiconfig file see https://github.com/davidtheclark/cosmiconfig
 
-The options are as in typescript types below
-
-```ts
-type Types =
-  | 'int'
-  | 'string'
-  | 'id'
-  | 'boolean'
-  | 'ref'
-  | 'typename'
-  | 'ref[]'
-  | 'int[]'
-  | 'string[]'
-  | 'date'
-  | 'json'
-
-interface Models {
-  [ModelName: string]: {
-    [property: string]: [Types, string?]
-  }
-}
-
-interface Actions {
-  [path: string]: {
-    [action: string]: {
-      /*
-        Typescript return type like '{ users: UserType[] }'.
-        Models will have "Type" prefix so you can refer to them for example
-        model name "User" exports type "UserType"
-      */
-      returnType: string
-      type: 'query' | 'mutation'
-      args: {
-        [arg: string]: {
-          type: string
-          required: boolean
-        }
-      }
-    }
-  }
-}
-
-export interface Options {
-  out?: string
-  force?: boolean
-  actions?: Actions
-  models: Models
-}
-```
-
 Example config
 
 ```js
 module.exports = {
+  out: 'src/models', // defaults to src/models
+  force: false, // defaults to false, will delete the whole models folder so be careful
   models: {
     User: {
-      typename: ['string'], // important
-      id: ['id'],
       created_at: ['string'],
       updated_at: ['date'],
       name: ['string'],
@@ -91,13 +33,8 @@ module.exports = {
       friend: ['ref', 'User'],
     },
     Book: {
-      typename: ['string'], // important
-      id: ['id'],
       title: ['string'],
       author: ['ref', 'User'],
-      publisher: ['ref', 'Publisher'],
-      tags: ['ref[]', 'BookTag'],
-      metaArrayOfStrings: ['json'],
     },
   },
   actions: {

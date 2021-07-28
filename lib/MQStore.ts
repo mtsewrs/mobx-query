@@ -30,7 +30,6 @@ export class MQStore {
   __queryCacheData = new Map()
   __queryCache = new Map()
   ssr: boolean
-  __afterInit = false
   __promises = new Map()
   request: RequestClient
 
@@ -40,7 +39,6 @@ export class MQStore {
       __queryCache: observable,
       query: action,
       deflate: action,
-      mutate: action,
       rawRequest: action,
       merge: action,
       getCollectionName: action,
@@ -99,25 +97,6 @@ export class MQStore {
     const query = new Query<T>(this.getStore, path, method, variables, options)
     this.__cacheQuery(path + JSON.stringify({ method, ...variables }), query)
     return query
-  }
-
-  mutate<T>(
-    path: string,
-    method: string,
-    variables?: any,
-    optimisticUpdate?: (store: any) => void
-  ): Query<T> {
-    if (optimisticUpdate) {
-      optimisticUpdate(this)
-      const q = this.query<T>(path, method, variables, {
-        fetchPolicy: 'network-only',
-      })
-      return q
-    } else {
-      return this.query(path, method, variables, {
-        fetchPolicy: 'network-only',
-      })
-    }
   }
 
   getCollectionName = getCollectionName

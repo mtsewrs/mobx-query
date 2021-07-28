@@ -21,7 +21,6 @@ export interface Data {
 
 export interface Snapshot extends Data {
   __queryCacheData?: Map<string, any>
-  __queryCache?: Map<string, any>
 }
 
 export class RootStoreBase extends MQStore {
@@ -71,8 +70,8 @@ export class RootStoreBase extends MQStore {
         }
       });
     _%>
-    <%= action.type %><%= props.upperFirst(props.actions[i]) %>(variables<%- !action.args.length ? '?' : '' %>: {<% action.args.length && action.args.forEach(function(arg) { %> <%= arg.name %><% arg.required && '?' %>: <%= arg.type %>, <% }); %>}, <%- action.type == 'query' ? 'options: QueryOptions = {}' : 'optimisticUpdate?: (store: RootStoreBase) => void'  %>) {
-      return this.<%= action.type %><<%= action.returnType %>>('<%= action.path %>', '<%= props.actions[i] %>', variables, <%- action.type == 'query' ? 'options' : 'optimisticUpdate'  %>)
+    query<%= props.upperFirst(props.actions[i]) %>(variables<%- !action.args.length ? '?' : '' %>: {<% action.args.length && action.args.forEach(function(arg) { %> <%= arg.name %><% arg.required && '?' %>: <%= arg.type %>, <% }); %>}, options: QueryOptions = {}) {
+      return this.query<<%= action.type %>>('<%= action.path %>', '<%= props.actions[i] %>', variables, options)
     }
 <%_ } _%>
 

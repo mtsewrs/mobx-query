@@ -1,5 +1,5 @@
-const known<%= props.model.name %>Properties = [<% props.model.types.forEach(function(model) { %> '<%= model.name %>', <% }) %>]
-export type <%= props.model.name %>ModelBaseType = Omit<<%= props.model.name %>ModelBase, 'update' | '<%= props.model.relationNames[0] %>' <% props.model.relationNames.forEach(function(model, i) { %>
+const known<%= props.model.name %>Properties = ['id', 'typename', <% props.model.types.forEach(function(model) { %> '<%= model.name %>', <% }) %>]
+export type <%= props.model.name %>ModelBaseType = Omit<<%= props.model.name %>ModelBase, 'update' | 'getStore' | 'relationNames' | '<%= props.model.relationNames[0] %>' <% props.model.relationNames.forEach(function(model, i) { %>
 <%_ if(i !== 0) { _%>
  | '<%= model %>'
 <%_ } _%>
@@ -8,26 +8,10 @@ export type <%= props.model.name %>ModelBaseType = Omit<<%= props.model.name %>M
 export class <%= props.model.name %>ModelBase {
   getStore?: () => RootStoreBase
  relationNames?: string[] = [<% props.model.relationNames.forEach(function(model) { %> '<%= model %>', <% }) %>]
+ id: string
+ typename: string
 <%_ for(var i=0; i < props.model.types.length; i++) { _%>
 <%_ switch (props.model.types[i].type) {
-case 'string' : _%>
-    <%= props.model.types[i].name %>?: string = null
-    <% break;
-case 'int' : _%>
-    <%= props.model.types[i].name %>?: integer = null
-    <% break;
-case 'boolean' : _%>
-    <%= props.model.types[i].name %>?: boolean = null
-    <% break;
-case 'date' : _%>
-    <%= props.model.types[i].name %>?: Date = null
-    <% break;
-case 'json' : _%>
-    <%= props.model.types[i].name %>?: any = null
-    <% break;
-case 'id' : _%>
-    	id: string
-    <% break;
 case 'ref' : _%>
     <%= props.model.types[i].name %>_id?: string = null
     get <%= props.model.types[i].name %>(): <%= props.model.types[i].ref %>Type | undefined {
@@ -46,11 +30,8 @@ case 'ref[]' : _%>
       this.<%= props.model.types[i].name %>_id = <%= props.model.types[i].name %>.map(m => m.id)
     }
     <% break;
-case 'string[]' : _%>
-    <%= props.model.types[i].name %>: string[] = null
-    <% break;
-case 'int[]' : _%>
-    <%= props.model.types[i].name %>: integer[] = null
+default: _%>
+    <%= props.model.types[i].name %>?: <%= props.model.types[i].type %> = null
     <% break;
 } _%>
 <%_ } _%>
