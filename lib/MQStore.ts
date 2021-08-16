@@ -37,7 +37,7 @@ export class MQStore {
     makeObservable(this, {
       __queryCacheData: observable,
       __queryCache: observable,
-      query: action,
+      rawQuery: action,
       deflate: action,
       rawRequest: action,
       merge: action,
@@ -53,7 +53,7 @@ export class MQStore {
     } = options
 
     if (!request) {
-      throw new Error('[sact]: Sact requires either a post client or url')
+      throw new Error('[mobx-query]: Sact requires either a post client or url')
     }
 
     if (data) {
@@ -83,7 +83,7 @@ export class MQStore {
     this.__queryCache.set(key, query)
   }
 
-  query<T>(
+  rawQuery<T>(
     path: string,
     method: string,
     variables?: any,

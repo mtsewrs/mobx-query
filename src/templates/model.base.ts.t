@@ -1,37 +1,45 @@
-const known<%= props.model.name %>Properties = ['id', 'typename', <% props.model.types.forEach(function(model) { %> '<%= model.name %>', <% }) %>]
+const known<%= props.model.name %>Properties = ['id', 'typename', <% props.model.properties.forEach(function(model) { %> '<%= model.name %>', <% }) %>]
 export type <%= props.model.name %>ModelBaseType = Omit<<%= props.model.name %>ModelBase, 'update' | 'getStore' | 'relationNames' | '<%= props.model.relationNames[0] %>' <% props.model.relationNames.forEach(function(model, i) { %>
 <%_ if(i !== 0) { _%>
  | '<%= model %>'
 <%_ } _%>
 <% }) %>>
 
+export interface <%= props.model.name %>Fields {
+<%_ for(var i=0; i < props.model.properties.length; i++) { _%>
+<%_ if(props.model.properties[i].ref_type !== "ref" && props.model.properties[i].ref_type !== "ref[]") { _%>
+<%= props.model.properties[i].name %>?: <%= props.model.properties[i].type %>
+<%_ } _%>
+<%_ } _%>
+}
+
 export class <%= props.model.name %>ModelBase {
   getStore?: () => RootStoreBase
  relationNames?: string[] = [<% props.model.relationNames.forEach(function(model) { %> '<%= model %>', <% }) %>]
  id: string
  typename: string
-<%_ for(var i=0; i < props.model.types.length; i++) { _%>
-<%_ switch (props.model.types[i].type) {
+<%_ for(var i=0; i < props.model.properties.length; i++) { _%>
+<%_ switch (props.model.properties[i].ref_type) {
 case 'ref' : _%>
-    <%= props.model.types[i].name %>_id?: string = null
-    get <%= props.model.types[i].name %>(): <%= props.model.types[i].ref %>Type | undefined {
-      return this.getStore().<%= props.plural(props.model.types[i].ref.toLowerCase()) %>.get(this.<%= props.model.types[i].name %>_id)
+    <%= props.model.properties[i].name %>_id?: string = null
+    get <%= props.model.properties[i].name %>(): <%= props.model.properties[i].type %>Type | undefined {
+      return this.getStore().<%= props.plural(props.model.properties[i].type.toLowerCase()) %>.get(this.<%= props.model.properties[i].name %>_id)
     }
-    set <%= props.model.types[i].name %>(<%= props.model.types[i].name %>) {
-      this.<%= props.model.types[i].name %>_id = <%= props.model.types[i].name %>.id
+    set <%= props.model.properties[i].name %>(<%= props.model.properties[i].name %>) {
+      this.<%= props.model.properties[i].name %>_id = <%= props.model.properties[i].name %>.id
     }
     <% break;
 case 'ref[]' : _%>
-    <%= props.model.types[i].name %>_id?: string[] = []
-    get <%= props.model.types[i].name %>(): <%= props.model.types[i].ref %>Type[] | undefined {
-      return this.<%= props.model.types[i].name %>_id.map( id => this.getStore().<%= props.plural(props.model.types[i].ref.toLowerCase()) %>.get(id))
+    <%= props.model.properties[i].name %>_id?: string[] = []
+    get <%= props.model.properties[i].name %>(): <%= props.model.properties[i].type %>Type[] | undefined {
+      return this.<%= props.model.properties[i].name %>_id.map( id => this.getStore().<%= props.plural(props.model.properties[i].type.toLowerCase()) %>.get(id))
     }
-    set <%= props.model.types[i].name %>(<%= props.model.types[i].name %>) {
-      this.<%= props.model.types[i].name %>_id = <%= props.model.types[i].name %>.map(m => m.id)
+    set <%= props.model.properties[i].name %>(<%= props.model.properties[i].name %>) {
+      this.<%= props.model.properties[i].name %>_id = <%= props.model.properties[i].name %>.map(m => m.id)
     }
     <% break;
 default: _%>
-    <%= props.model.types[i].name %>?: <%= props.model.types[i].type %> = null
+    <%= props.model.properties[i].name %>?: <%= props.model.properties[i].type %> = null
     <% break;
 } _%>
 <%_ } _%>
@@ -63,18 +71,18 @@ default: _%>
 
     makeObservable(this, {
       update: action,
-      <%_ for(var i=0; i < props.model.types.length; i++) { _%>
-        <%_ if (props.model.types[i].type === 'ref' || props.model.types[i].type === 'ref[]') { _%>
-          <%= props.model.types[i].name %>_id: observable,
-          <%= props.model.types[i].name %>: computed,
+      <%_ for(var i=0; i < props.model.properties.length; i++) { _%>
+        <%_ if (props.model.properties[i].ref_type === 'ref' || props.model.properties[i].ref_type === 'ref[]') { _%>
+          <%= props.model.properties[i].name %>_id: observable,
+          <%= props.model.properties[i].name %>: computed,
         <%_ } else { _%>
-          <%= props.model.types[i].name %>: observable,
+          <%= props.model.properties[i].name %>: observable,
         <%_ } _%>
       <%_ } _%>
     })
   }
 
-  update(snapshot: <%= props.model.name %>Type) {
+  update(snapshot: <%= props.model.name %>Fields) {
     const keys = Object.keys(snapshot)
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i]

@@ -4,20 +4,51 @@
 import { observable, makeObservable } from 'mobx'
 import { MQStore, QueryOptions, StoreOptions, setTypes, getCollectionName } from '<%- props.test ? '../../../lib' : 'mobx-query' %>'
 <%_ for(var i=0; i < props.models.length; i++) { _%>
-import { <%= props.models[i] %>Model, <%= props.models[i] %>Data, <%= props.models[i] %>Type } from '../<%= props.models[i] %>Model'
+import { <%= props.models[i].name %>Model, <%= props.models[i].name %>Data, <%= props.models[i].name %>Type } from '../<%= props.models[i].name %>Model'
 <%_ } _%>
 
-const knownTypes: any = [<% props.models.forEach(function(model) { %> ['<%= model %>', () => <%= model %>Model], <% }); %>]
-const rootTypes = [<% props.models.forEach(function(model) { %> '<%= model %>', <% }); %>]
+<%_ for(var i=0; i < props.config.interfaces.length; i++) { _%>
+  <%= props.config.interfaces[i] %>
+<%_ } _%>
+
+const knownTypes: any = [<% props.models.forEach(function(model) { %> ['<%= model.name %>', () => <%= model.name %>Model], <% }); %>]
+const rootTypes = [<% props.models.forEach(function(model) { %> '<%= model.name %>', <% }); %>]
 export interface Data {
   <%_ for(var i=0; i < props.models.length; i++) { _%>
-    <%= props.plural(props.models[i].toLowerCase()) %>?: {
+    <%= props.plural(props.models[i].name.toLowerCase()) %>?: {
       [key: string]: {
-        [key in keyof <%= props.models[i] %>Data]: <%= props.models[i] %>Data[key]
+        [key in keyof <%= props.models[i].name %>Data]: <%= props.models[i].name %>Data[key]
       }
     }
   <%_ } _%>
 }
+
+interface QueryReturn {
+<%_ for(var i=0; i < props.namespaces.length; i++) { _%>
+    <%_ var namespace = props.namespaces[i]; _%>
+  <%= namespace.namespace %>: {
+    <%_ for(var j=0; j < namespace.actions.length; j++) { _%>
+      <%_ var action = namespace.actions[j]; _%>
+      <%= action.name %>: <%= action.type %>
+    <%_ } _%>
+  }
+<%_ } _%>
+}
+
+interface QueryVariables {
+<%_ for(var i=0; i < props.namespaces.length; i++) { _%>
+    <%_ var namespace = props.namespaces[i]; _%>
+  <%= namespace.namespace %>: {
+    <%_ for(var j=0; j < namespace.actions.length; j++) { _%>
+      <%_ var action = namespace.actions[j]; _%>
+      <%= action.name %>: {<% action.args.length && action.args.forEach(function(arg) { %> <%= arg.name %>: <%= arg.type %>, <% }); %>}
+    <%_ } _%>
+  }
+<%_ } _%>
+}
+
+type ActionName<T extends keyof QueryReturn> = keyof QueryReturn[T]
+type VariableName<T extends keyof QueryVariables> = keyof QueryVariables[T]
 
 export interface Snapshot extends Data {
   __queryCacheData?: Map<string, any>
@@ -25,7 +56,7 @@ export interface Snapshot extends Data {
 
 export class RootStoreBase extends MQStore {
 <%_ for(var i=0; i < props.models.length; i++) { _%>
-    <%= props.plural(props.models[i].toLowerCase()) %> = observable.map<string, <%= props.models[i] %>Type>()
+    <%= props.plural(props.models[i].name.toLowerCase()) %> = observable.map<string, <%= props.models[i].name %>Type>()
 <%_ } _%>
   kt: Map<any, any>
   rt: Set<any>
@@ -34,7 +65,7 @@ export class RootStoreBase extends MQStore {
     super(options, data)
     makeObservable(this, {
   <%_ for(var i=0; i < props.models.length; i++) { _%>
-    <%= props.plural(props.models[i].toLowerCase()) %>: observable,
+    <%= props.plural(props.models[i].name.toLowerCase()) %>: observable,
   <%_ } _%>
     })
 
@@ -45,6 +76,19 @@ export class RootStoreBase extends MQStore {
 
     this.kt = kt
     this.rt = rt
+  }
+
+  query<
+    T extends keyof QueryReturn,
+    R extends ActionName<T>,
+    V extends VariableName<T>
+  >(path: T, action: V | R, variables: QueryVariables[T][V], options: QueryOptions = {}) {
+    return this.rawQuery<QueryReturn[T][R]>(
+      path,
+      action as string,
+      variables,
+      options
+    )
   }
 
   getSnapshot(): Snapshot {
@@ -59,21 +103,6 @@ export class RootStoreBase extends MQStore {
 
     return snapshot
   }
-
-<%_ for(var i=0; i < props.actions.length; i++) { _%>
-    <%_ var action = props.schema.actions.get(props.actions[i]); _%>
-    <%_ var required = false; _%>
-    <%_
-      action.args.forEach(arg => {
-        if(arg.required) {
-          required = true
-        }
-      });
-    _%>
-    query<%= props.upperFirst(props.actions[i]) %>(variables<%- !action.args.length ? '?' : '' %>: {<% action.args.length && action.args.forEach(function(arg) { %> <%= arg.name %><% arg.required && '?' %>: <%= arg.type %>, <% }); %>}, options: QueryOptions = {}) {
-      return this.query<<%= action.type %>>('<%= action.path %>', '<%= props.actions[i] %>', variables, options)
-    }
-<%_ } _%>
 
   isKnownType(typename: string): boolean {
     return this.kt.has(typename)

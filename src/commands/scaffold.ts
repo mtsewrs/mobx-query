@@ -1,19 +1,19 @@
 import { GluegunCommand } from 'gluegun'
 
-import { buildActions } from '../lib/utils/buildActions'
-import { buildModels } from '../lib/utils/buildModels'
-import { schema, Options } from '../lib/utils/schema'
+import { buildActions } from '../utils/buildActions'
+import { buildModels } from '../utils/buildModels'
+
+import { parse } from '../utils/parser'
 
 const scaffold: GluegunCommand = {
   name: 'scaffold',
   alias: 's',
   description:
-    'Scaffold a typescript react client for fetching data from your jsonrpc api',
+    'Scaffold a typescript react client for fetching data from your json rpc api',
   run: async (toolbox) => {
     const {
       print,
       template: { generate },
-      config: { loadConfig },
       strings,
       system,
       parameters,
@@ -21,43 +21,58 @@ const scaffold: GluegunCommand = {
     } = toolbox
 
     const test = parameters.options.test || false
-    const config: Options = loadConfig(
-      'mobx-query',
-      filesystem.path(process.cwd(), test ? './tests' : '')
+    const out = parameters.options.out || 'src/models'
+    const force = parameters.options.force || false
+    const schema_src = filesystem.read(
+      filesystem.path(process.cwd(), './schema.query')
     )
 
-    if (!test && !config) throw new Error('[mobx-query] config file required')
+    if (!schema_src) throw new Error('[mobx-query] config file required')
 
-    const out = config.out || parameters.options.out || 'src/models'
-    const force = config.force || parameters.options.force || false
+    const config = parse(schema_src)
+    buildModels(config)
+    buildActions(config)
 
-    try {
-      if (config.actions) {
-        const schema_actions = Object.keys(config.actions || {})
-        for (let i = 0; i < schema_actions.length; i++) {
-          const namespace = schema_actions[i]
-          const action = config.actions[namespace]
-          buildActions(namespace, action)
+    const models = config.models.map((m) => m.name)
+    config.interfaces = config.interfaces.map((interf: string) => {
+      let model = []
+      for (let i = 0; i < models.length; i++) {
+        const m = models[i]
+        if (interf.includes(m)) {
+          model.push(m)
         }
       }
 
-      if (config.models) {
-        buildModels(config.models)
+      for (let i = 0; i < model.length; i++) {
+        const m = model[i]
+        let t = 0
+        interf = interf.replaceAll(m, (match) => {
+          t++
+          return t !== 1 ? m + 'Type' : match
+        })
       }
 
-      if (!schema.models.size) {
-        throw new Error('[mobx-query] scaffolding requires models option')
-      }
+      return interf
+    })
 
+    if (!config) throw new Error('[mobx-query] config file required')
+
+    if (!config.models.length) {
+      throw new Error('[mobx-query] scaffolding requires models')
+    }
+
+    const spinner = print.spin('Generating...')
+
+    try {
       if (force) {
         await filesystem.removeAsync(`${out}`)
       } else {
         await filesystem.removeAsync(`${out}/base`)
       }
-
+      const generated: string[] = []
       const promises: Promise<string | void>[] = []
 
-      const models = Array.from(schema.models.keys())
+      const models = config.models
 
       promises.push(
         generate({
@@ -66,8 +81,8 @@ const scaffold: GluegunCommand = {
           props: {
             plural: strings.plural,
             upperFirst: strings.upperFirst,
-            schema,
-            actions: Array.from(schema.actions.keys()),
+            config,
+            namespaces: config.namespaces,
             models,
             test,
           },
@@ -75,7 +90,7 @@ const scaffold: GluegunCommand = {
       )
 
       for (let i = 0; i < models.length; i++) {
-        const model = schema.models.get(models[i])
+        const model = models[i]
         if (i === 0) {
           let initial_t = ''
           initial_t =
@@ -89,7 +104,7 @@ const scaffold: GluegunCommand = {
             `
           for (let j = 0; j < models.length; j++) {
             initial_t = initial_t.concat(
-              `import { ${models[j]}Type } from '../${models[j]}Model'\n`
+              `import { ${models[j].name}Type } from '../${models[j].name}Model'\n`
             )
           }
 
@@ -105,21 +120,17 @@ const scaffold: GluegunCommand = {
 
         promises.push(filesystem.appendAsync(`${out}/base/model.base.ts`, m))
 
-        if (!filesystem.exists(`${out}/${models[i]}Model.ts`)) {
+        if (!filesystem.exists(`${out}/${model.name}Model.ts`)) {
           promises.push(
             generate({
               template: `model.ts.t`,
-              target: `${out}/${models[i]}Model.ts`,
+              target: `${out}/${model.name}Model.ts`,
               props: { model },
             })
           )
-          promises.push(
-            Promise.resolve(print.success(` Generated ${models[i]} Model`))
-          )
+          generated.push(` Generated ${model.name} Model`)
         } else {
-          promises.push(
-            Promise.resolve(print.warning(` Skipping ${models[i]} Model`))
-          )
+          generated.push(` Skipping ${model.name} Model`)
         }
       }
 
@@ -155,28 +166,32 @@ const scaffold: GluegunCommand = {
             },
           })
         )
+        generated.push(` Generated RootStore`)
       } else {
-        promises.push(Promise.resolve(print.warning(` Skipping RootStore`)))
+        generated.push(` Skipping RootStore`)
       }
 
       await Promise.all(promises)
 
-      print.info(` Running prettier...`)
       try {
         if (toolbox.packageManager.hasYarn()) {
           await system.run(`yarn prettier --write "${out}/**/*.ts"`)
         } else {
           await system.run(`npx prettier --write "${out}/**/*.ts"`)
         }
-        print.success(` Prettier done`)
+        generated.push(` Ran prettier successfully`)
       } catch (error) {
-        print.warning(
+        generated.push(
           ` Running prettier failed. Install prettier to auto format models`
         )
       }
-      print.success(` ${print.checkmark} Model generation successfull`)
+      spinner.succeed(` Model generation successfull`)
+      for (let i = 0; i < generated.length; i++) {
+        const s = generated[i]
+        print.success(s)
+      }
     } catch (error) {
-      print.error(error.message)
+      spinner.fail(error.message)
     }
   },
 }

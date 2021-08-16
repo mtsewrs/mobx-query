@@ -14,6 +14,10 @@ import { BookModel, BookData, BookType } from '../BookModel'
 import { BookTagModel, BookTagData, BookTagType } from '../BookTagModel'
 import { PublisherModel, PublisherData, PublisherType } from '../PublisherModel'
 
+interface UsersReturn {
+  users: UserType[]
+}
+
 const knownTypes: any = [
   ['User', () => UserModel],
   ['Book', () => BookModel],
@@ -43,6 +47,29 @@ export interface Data {
     }
   }
 }
+
+interface QueryReturn {
+  user: {
+    getUsers: UsersReturn
+    viewer: UserType
+    logout: boolean
+    login: UserType
+    update: UserType
+  }
+}
+
+interface QueryVariables {
+  user: {
+    getUsers: {}
+    viewer: {}
+    logout: {}
+    login: { username: string; password: string }
+    update: { email: string }
+  }
+}
+
+type ActionName<T extends keyof QueryReturn> = keyof QueryReturn[T]
+type VariableName<T extends keyof QueryVariables> = keyof QueryVariables[T]
 
 export interface Snapshot extends Data {
   __queryCacheData?: Map<string, any>
@@ -74,6 +101,24 @@ export class RootStoreBase extends MQStore {
     this.rt = rt
   }
 
+  query<
+    T extends keyof QueryReturn,
+    R extends ActionName<T>,
+    V extends VariableName<T>
+  >(
+    path: T,
+    action: V | R,
+    variables: QueryVariables[T][V],
+    options: QueryOptions = {}
+  ) {
+    return this.rawQuery<QueryReturn[T][R]>(
+      path,
+      action as string,
+      variables,
+      options
+    )
+  }
+
   getSnapshot(): Snapshot {
     const snapshot = {}
     for (let i = 0; i < rootTypes.length; i++) {
@@ -85,33 +130,6 @@ export class RootStoreBase extends MQStore {
     snapshot['__queryCacheData'] = this.__queryCacheData
 
     return snapshot
-  }
-
-  queryViewer(variables?: {}, options: QueryOptions = {}) {
-    return this.query<UserType>('user', 'viewer', variables, options)
-  }
-  queryGetUser(variables: { id: string }, options: QueryOptions = {}) {
-    return this.query<UserType>('user', 'getUser', variables, options)
-  }
-  queryGetUsers(variables?: {}, options: QueryOptions = {}) {
-    return this.query<{ users: UserType[] }>(
-      'user',
-      'getUsers',
-      variables,
-      options
-    )
-  }
-  queryCreateUser(
-    variables: { password: string; email: string },
-    options: QueryOptions = {}
-  ) {
-    return this.query<UserType>('user', 'createUser', variables, options)
-  }
-  queryLogin(
-    variables: { password: string; email: string },
-    options: QueryOptions = {}
-  ) {
-    return this.query<UserType>('user', 'login', variables, options)
   }
 
   isKnownType(typename: string): boolean {

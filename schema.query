@@ -1,0 +1,40 @@
+model User {
+  created_at    string
+  updated_at    string
+  name          string
+  email         string
+  password      string
+  books         Book @ref[]
+  friend        User @ref
+  favouriteBook Book @ref
+}
+
+model Book {
+  title              string
+  author             User @ref
+  publisher          Publisher @ref
+  tags               BookTag @ref[]
+  metaArrayOfStrings any
+}
+
+model BookTag {
+  name  string
+  books Book @ref[]
+}
+
+model Publisher {
+  name  string
+  books Book @ref[]
+}
+
+action user {
+ getUsers UsersReturn
+ viewer UserType
+ logout boolean
+ login(username string, password string) User
+ update(email string) User
+}
+
+interface UsersReturn {
+  users User[]
+}

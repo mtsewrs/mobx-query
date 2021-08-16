@@ -34,7 +34,7 @@ export class Query<T = unknown> implements PromiseLike<T> {
   error: any = undefined
   status: status = undefined
   /**
-   * this will be true and object is in the cache and loading is true TODO rename to something more clear
+   * this will be true if object is in the cache and loading is true TODO rename to something more clear
    */
   get hasCache() {
     return this.loading && this.status === 'cache'

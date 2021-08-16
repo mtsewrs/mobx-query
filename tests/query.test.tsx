@@ -63,9 +63,12 @@ describe('useQuery', () => {
     })
 
     function Page() {
-      const { error, loading } = useQuery((store) => store.queryGetUsers(), {
-        store,
-      })
+      const { error, loading } = useQuery(
+        (store) => store.query('user', 'getUsers', {}),
+        {
+          store,
+        }
+      )
 
       if (loading) {
         return <>loading...</>
@@ -100,7 +103,7 @@ describe('useQuery', () => {
     function Page() {
       const { data: user, query } = useQuery(
         (store) =>
-          store.queryGetUser({ id: 'a' }, { fromCache: ['User', 'a'] }),
+          store.query('user', 'viewer', {}, { fromCache: ['User', 'a'] }),
         {
           store,
         }
@@ -126,7 +129,7 @@ describe('useQuery', () => {
     function Page() {
       const { data } = useQuery(
         (store) =>
-          store.queryGetUsers(undefined, {
+          store.query('user', 'getUsers', undefined, {
             initialData: {
               users: [{ id: 'a', typename: 'User', email: 'a@test.com' }],
             },
@@ -160,7 +163,7 @@ describe('useQuery', () => {
     function Page() {
       const { data, query } = useQuery(
         (store) =>
-          store.queryGetUser({ id: 'a' }, { fromCache: ['User', 'a'] }),
+          store.query('user', 'viewer', {}, { fromCache: ['User', 'a'] }),
         {
           store,
           suspense: true,
@@ -189,10 +192,13 @@ describe('useQuery', () => {
     })
 
     function Page() {
-      const { data } = useQuery((store) => store.queryGetUsers(), {
-        store,
-        suspense: true,
-      })
+      const { data } = useQuery(
+        (store) => store.query('user', 'getUsers', {}),
+        {
+          store,
+          suspense: true,
+        }
+      )
 
       return <>{data.users.map((u) => u.id).join('')}</>
     }
@@ -210,7 +216,7 @@ describe('useQuery', () => {
     const _store = new RootStore({
       request: mockCallbackSuccess,
     })
-    await _store.queryGetUsers()
+    await _store.query('user', 'getUsers', {})
     const snapshot = _store.getSnapshot()
     const store = new RootStore(
       {
@@ -220,9 +226,12 @@ describe('useQuery', () => {
     )
 
     function Page() {
-      const { data } = useQuery((store) => store.queryGetUsers(), {
-        store,
-      })
+      const { data } = useQuery(
+        (store) => store.query('user', 'getUsers', {}),
+        {
+          store,
+        }
+      )
 
       return <>{data.users.map((u) => u.id).join('')}</>
     }
@@ -245,10 +254,13 @@ describe('useQuery', () => {
     })
 
     function Page() {
-      const { query } = useQuery((store) => store.queryGetUsers(), {
-        store,
-        suspense: true,
-      })
+      const { query } = useQuery(
+        (store) => store.query('user', 'getUsers', {}),
+        {
+          store,
+          suspense: true,
+        }
+      )
 
       return <>{query.status}</>
     }
@@ -274,7 +286,7 @@ describe('useQuery', () => {
 
     function Page() {
       const { data, loading, query } = useQuery(
-        (store) => store.queryGetUsers(),
+        (store) => store.query('user', 'getUsers', {}),
         {
           store,
         }

@@ -7,7 +7,7 @@ async function run(argv) {
   // create a CLI runtime
   const cli = build()
     .brand('mobx-query')
-    .exclude(['meta', 'semver', 'prompt', 'http', 'patching'])
+    .exclude(['meta', 'semver', 'prompt', 'http', 'patching', 'config'])
     .src(__dirname)
     .help() // provides default for help, h, --help, -h
     .version() // provides default for version, v, --version, -v

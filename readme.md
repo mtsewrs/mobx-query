@@ -4,7 +4,7 @@
 
 Generates typescript mst or mobx models and a react client to query your json rpc api
 
-> In order for your models to work your database must have a "typename" and "id" property
+> In order for it to work your data fetched from the server must return "typename" and "id" property for the corresponding model
 
 ## Installation
 
@@ -12,61 +12,50 @@ Generates typescript mst or mobx models and a react client to query your json rp
 yarn add mobx-query mobx mobx-react-lite react react-dom
 ```
 
-## Config
+## Schema file
 
-mobx-query requires a cosmiconfig file see https://github.com/davidtheclark/cosmiconfig
+mobx-query requires a schema file called `schema.query`. Example schema
 
-Example config
+```
+model User {
+  created_at    string
+  updated_at    string
+  name          string
+  email         string
+  password      string
+  books         Book @ref[]
+  friend        User @ref
+  favouriteBook Book @ref
+}
 
-```js
-module.exports = {
-  out: 'src/models', // defaults to src/models
-  force: false, // defaults to false, will delete the whole models folder so be careful
-  models: {
-    User: {
-      created_at: ['string'],
-      updated_at: ['date'],
-      name: ['string'],
-      email: ['string'],
-      password: ['string'],
-      books: ['ref[]', 'Book'],
-      friend: ['ref', 'User'],
-    },
-    Book: {
-      title: ['string'],
-      author: ['ref', 'User'],
-    },
-  },
-  actions: {
-    user: {
-      getUser: {
-        args: {
-          id: {
-            type: 'string',
-          },
-        },
-        returnType: 'UserType',
-        type: 'query',
-      },
-      getUsers: {
-        returnType: '{ users: UserType[] }',
-        type: 'query',
-        path: 'user',
-      },
-      login: {
-        args: {
-          password: {
-            type: 'string',
-          },
-          email: {
-            type: 'string',
-          },
-        },
-        returnType: 'UserType',
-        type: 'mutate',
-      },
-    },
-  },
+model Book {
+  title              string
+  author             User @ref
+  publisher          Publisher @ref
+  tags               BookTag @ref[]
+  metaArrayOfStrings any
+}
+
+model BookTag {
+  name  string
+  books Book @ref[]
+}
+
+model Publisher {
+  name  string
+  books Book @ref[]
+}
+
+action user {
+ getUsers UsersReturn
+ viewer UserType
+ logout boolean
+ login(username string, password string) User
+ update(email string) User
+}
+
+interface UsersReturn {
+  users User[]
 }
 ```
 
@@ -78,4 +67,23 @@ yarn mobx-query scaffold --out src/models
 
 ## Usage
 
-For now see react test in test folder for usage, examples will come soon
+```typescript
+function Home() {
+  const { data, loading, error } = useQuery((store) =>
+    store.query('user', 'getUsers', {})
+  )
+
+  if (loading) {
+    return 'Loading...'
+  }
+
+  if (error) {
+    return 'Error'
+  }
+  return <div>...data</div>
+}
+
+export default observer(Home)
+```
+
+For now see react test in test folder for usage, example will come soon

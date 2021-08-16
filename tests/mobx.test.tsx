@@ -39,7 +39,7 @@ describe('mobx store', () => {
     const store = new RootStore({
       request: mockCallbackError,
     })
-    const response = await store.queryGetUsers()
+    const response = await store.query('user', 'getUsers', {})
     expect(response).toBeUndefined()
   })
 
@@ -59,7 +59,7 @@ describe('mobx store', () => {
       }
     )
 
-    const query = store.queryGetUsers()
+    const query = store.query('user', 'getUsers', {})
     expect(store.__promises.size).toBe(1)
     expect(store.users.size).toBe(1)
     const userA = store.users.get('a')
@@ -94,7 +94,7 @@ describe('mobx store', () => {
 
     expect(snapshot.users['a'].id).toBe(users['a'].id)
 
-    await store.queryGetUsers()
+    await store.query('user', 'getUsers', {})
 
     const store2 = new RootStore(
       { request: mockCallbackSuccess },
@@ -103,12 +103,11 @@ describe('mobx store', () => {
 
     expect(store2.__queryCacheData.size).toBe(1)
     expect(store2.users.size).toBe(1)
-    const data = await store2.queryGetUsers()
+    const data = await store2.query('user', 'getUsers', {})
     expect(data.users[0].update).toBeDefined()
   })
 
   test("it should preload and push pending queries to '__promises'", async () => {
-    /** Create a store with some initial state */
     const store = new RootStore(
       {
         request: mockCallbackSuccess,
@@ -125,7 +124,7 @@ describe('mobx store', () => {
       }
     )
 
-    store.queryGetUsers()
+    store.query('user', 'getUsers', {})
     expect(store.__promises.size).toBe(1)
     expect(store.users.size).toBe(1)
     await Promise.all(store.__promises.values())
@@ -139,12 +138,16 @@ describe('mobx store', () => {
     const store = new RootStore({
       request: mockCallbackSuccess,
     })
-
-    const data = await store.queryGetUsers(undefined, {
-      initialData: {
-        users: [{ id: 'a', typename: 'User', email: 'a@test.com' }],
-      },
-    })
+    const data = await store.query(
+      'user',
+      'getUsers',
+      {},
+      {
+        initialData: {
+          users: [{ id: 'a', typename: 'User', email: 'a@test.com' }],
+        },
+      }
+    )
     expect(store.users.size).toBe(1)
     expect(data.users.length).toBe(1)
     const user = store.users.get('a')
