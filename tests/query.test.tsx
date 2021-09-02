@@ -45,10 +45,12 @@ const mockCallbackSuccess2 = jest.fn().mockImplementationOnce(() =>
 
 const mockCallbackSucces3 = jest.fn().mockImplementation(() =>
   Promise.resolve({
-    id: 'a',
-    email: 'a@test.com',
-    typename: 'User',
-    password: 'asdasd',
+    user: {
+      id: 'a',
+      email: 'a@test.com',
+      typename: 'User',
+      password: 'asdasd',
+    },
   })
 )
 
@@ -103,17 +105,17 @@ describe('useQuery', () => {
     function Page() {
       const { data: user, query } = useQuery(
         (store) =>
-          store.query('user', 'viewer', {}, { fromCache: ['User', 'a'] }),
+          store.query('user', 'getUser', {}, { fromCache: ['User', 'a'] }),
         {
           store,
         }
       )
 
-      if (query.hasCache) {
-        return <>{user.id}</>
+      if (query.cache) {
+        return <>{query.cache.id}</>
       }
 
-      return <>{user.email}</>
+      return <>{user.user.email}</>
     }
     const MyPage = observer(Page)
     const rendered = render(<MyPage />)
@@ -163,18 +165,18 @@ describe('useQuery', () => {
     function Page() {
       const { data, query } = useQuery(
         (store) =>
-          store.query('user', 'viewer', {}, { fromCache: ['User', 'a'] }),
+          store.query('user', 'getUser', {}, { fromCache: ['User', 'a'] }),
         {
           store,
           suspense: true,
         }
       )
 
-      if (query.hasCache) {
-        return <>{data?.id}</>
+      if (query.cache) {
+        return <>{query.cache.id}</>
       }
 
-      return <>{data?.email}</>
+      return <>{data.user.email}</>
     }
     const MyPage = observer(Page)
     const rendered = render(

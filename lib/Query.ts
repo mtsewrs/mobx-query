@@ -34,13 +34,13 @@ export class Query<T = unknown> implements PromiseLike<T> {
   error: any = undefined
   status: status = undefined
   /**
-   * this will be true if object is in the cache and loading is true TODO rename to something more clear
+   * this will return a single model if it exists in the cache otherwise it will return false
    */
-  get hasCache() {
-    return this.loading && this.status === 'cache'
+  get cache(): boolean | any {
+    return this.loading && this.status === 'cache' ? this.data : false
   }
 
-  getStore: () => MQStore
+  store: () => MQStore
   public path: string
   public method: string
   public promise!: Promise<T>
@@ -48,7 +48,7 @@ export class Query<T = unknown> implements PromiseLike<T> {
   private queryKey: string
 
   constructor(
-    getStore: () => MQStore,
+    store: () => MQStore,
     path: string,
     method: string,
     public variables: any,
@@ -60,10 +60,10 @@ export class Query<T = unknown> implements PromiseLike<T> {
       error: observable,
       status: observable,
       clear: action,
-      hasCache: computed,
+      cache: computed,
     })
 
-    this.getStore = getStore
+    this.store = store
 
     let fetchPolicy = options.fetchPolicy || 'cache-first'
 
@@ -73,39 +73,42 @@ export class Query<T = unknown> implements PromiseLike<T> {
       this.path +
       JSON.stringify({ method: this.method, fetchPolicy, ...variables })
 
-    const store = this.getStore()
+    const _store = this.store()
 
-    if (store.ssr && !this.options.noSsr && isServer) {
+    if (_store.ssr && !this.options.noSsr && isServer) {
       fetchPolicy = 'cache-first'
     }
     this.fetchPolicy = fetchPolicy
 
-    if (store.ssr && this.options.noSsr && isServer) {
+    if (_store.ssr && this.options.noSsr && isServer) {
       this.promise = Promise.resolve() as any
       return
     }
 
-    const inCache = store.__queryCacheData.has(this.queryKey)
+    const inCache = _store.__queryCacheData.has(this.queryKey)
     if (options.fromCache) {
       const [modelName, key] = options.fromCache
       const model = getCollectionName(modelName)
-      if (!store[model]) {
+      if (!_store[model]) {
         throw new Error('[Query] typename not found')
       }
-      const fromCache = store[model].has(key)
+      const fromCache = _store[model].has(key)
       if (fromCache) {
         this.status = 'cache'
-        this.data = store[model].get(key)
+        this.data = _store[model].get(key)
       }
     }
 
     if (options.initialData) {
       // cache query and response
       if (this.fetchPolicy !== 'no-cache') {
-        store.__cacheResponse(this.queryKey, store.deflate(options.initialData))
+        _store.__cacheResponse(
+          this.queryKey,
+          _store.deflate(options.initialData)
+        )
       }
 
-      const data = store.merge(options.initialData)
+      const data = _store.merge(options.initialData)
       this.status = 'success'
       this.loading = false
       this.error = false
@@ -168,7 +171,7 @@ export class Query<T = unknown> implements PromiseLike<T> {
   }
 
   private async fetchResults() {
-    const store = this.getStore()
+    const store = this.store()
     this.loading = true
     if (this.status !== 'cache') this.status = 'pending'
     let promise: Promise<T>
@@ -206,7 +209,7 @@ export class Query<T = unknown> implements PromiseLike<T> {
   }
 
   private useCachedResults() {
-    const store = this.getStore()
+    const store = this.store()
     this.status = 'success'
     this.data = store.merge(store.__queryCacheData.get(this.queryKey))
     this.promise = Promise.resolve(this.data!)
@@ -235,7 +238,7 @@ export class Query<T = unknown> implements PromiseLike<T> {
       | null
   ): PromiseLike<TResult1 | TResult2>
   then(onfulfilled: any, onrejected: any) {
-    const store = this.getStore()
+    const store = this.store()
     return this.promise
       .then((d) => {
         store.__runInStoreContext(() => onfulfilled && onfulfilled(d))

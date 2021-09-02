@@ -9,13 +9,16 @@ import {
   setTypes,
   getCollectionName,
 } from '../../../lib'
-import { UserModel, UserData, UserType } from '../UserModel'
-import { BookModel, BookData, BookType } from '../BookModel'
-import { BookTagModel, BookTagData, BookTagType } from '../BookTagModel'
-import { PublisherModel, PublisherData, PublisherType } from '../PublisherModel'
+import { UserModel, UserData } from '../UserModel'
+import { BookModel, BookData } from '../BookModel'
+import { BookTagModel, BookTagData } from '../BookTagModel'
+import { PublisherModel, PublisherData } from '../PublisherModel'
 
 interface UsersReturn {
-  users: UserType[]
+  users: UserModel[]
+}
+interface UserReturn {
+  user: UserModel
 }
 
 const knownTypes: any = [
@@ -51,17 +54,21 @@ export interface Data {
 interface QueryReturn {
   user: {
     getUsers: UsersReturn
-    viewer: UserType
+    getUser: UserReturn
+    viewer: UserModel
+    viewers: UserModel[]
     logout: boolean
-    login: UserType
-    update: UserType
+    login: UserModel
+    update: UserModel
   }
 }
 
 interface QueryVariables {
   user: {
     getUsers: {}
+    getUser: {}
     viewer: {}
+    viewers: {}
     logout: {}
     login: { username: string; password: string }
     update: { email: string }
@@ -76,10 +83,10 @@ export interface Snapshot extends Data {
 }
 
 export class RootStoreBase extends MQStore {
-  users = observable.map<string, UserType>()
-  books = observable.map<string, BookType>()
-  booktags = observable.map<string, BookTagType>()
-  publishers = observable.map<string, PublisherType>()
+  users = observable.map<string, UserModel>()
+  books = observable.map<string, BookModel>()
+  booktags = observable.map<string, BookTagModel>()
+  publishers = observable.map<string, PublisherModel>()
   kt: Map<any, any>
   rt: Set<any>
 

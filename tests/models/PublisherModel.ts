@@ -1,12 +1,11 @@
-import { RootStoreBase, Data } from './base/root.base'
+import { Data } from './base/root.base'
+import { RootStore } from './root'
 import { PublisherModelBase, PublisherModelBaseType } from './base/model.base'
-
-export type PublisherType = PublisherModel
 
 export type PublisherData = PublisherModelBaseType
 
 export class PublisherModel extends PublisherModelBase {
-  constructor(getStore: () => RootStoreBase, data: Data) {
-    super(getStore, data)
+  constructor(store: () => RootStore, data: Data) {
+    super(store, data)
   }
 }

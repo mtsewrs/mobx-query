@@ -54,7 +54,7 @@ export function createUseQueryHook<STORE extends MQStore>(
   context: React.Context<STORE>,
   React: typeof ReactNamespace
 ): UseQueryHook<STORE> {
-  return function<DATA>(
+  return function <DATA>(
     queryIn: undefined | QueryLike<STORE, DATA> = undefined,
     opts: UseQueryHookOptions<STORE> = {}
   ) {
@@ -90,9 +90,8 @@ export function createUseQueryHook<STORE extends MQStore>(
       loading: query ? query.loading : false,
       error: query && query.error,
       data: query && query.data,
-      status: query.status,
       query,
-      setQuery: setQueryHelper
+      setQuery: setQueryHelper,
     }
   }
 }

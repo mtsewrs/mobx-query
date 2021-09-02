@@ -4,6 +4,7 @@ model User {
   name          string
   email         string
   password      string
+  role          Role
   books         Book @ref[]
   friend        User @ref
   favouriteBook Book @ref
@@ -23,18 +24,30 @@ model BookTag {
 }
 
 model Publisher {
-  name  string
+  name string
   books Book @ref[]
 }
 
 action user {
- getUsers UsersReturn
- viewer UserType
+ getUsers users_return
+ getUser user_return
+ viewer User
+ viewers User[]
  logout boolean
  login(username string, password string) User
  update(email string) User
 }
 
-interface UsersReturn {
+interface users_return {
   users User[]
+}
+
+interface user_return {
+  user User
+}
+
+enum Role {
+  USER,
+  ADMIN,
+  SUPERUSER,
 }

@@ -13,8 +13,8 @@
                 const hasRef = ref ? true : false
                 return {
                 	name,
-                    type,
-                    ref_type: hasRef ? ref[2] ? 'ref[]' : 'ref' : null
+                  type,
+                  ref_type: hasRef ? ref[2] ? 'ref[]' : 'ref' : null
                 }
             })
         })
@@ -31,8 +31,8 @@
         	namespace: namespace,
             actions: actions.map(a => {
             	const name = a[0]
-                const type = a[4][0]
-				const variables = a[2] ? a[2][1].map(v => ({ name: v[1], type: v[3]})) : false
+              const type = a[4][0]
+				      const variables = a[2] ? a[2][1].map(v => ({ name: v[1], type: v[3]})) : false
             	return {
                 	name,
                     type,
@@ -54,18 +54,31 @@
     }
     return x
   }
+
+  function extractEnums(interfaces) {
+  	let x = []
+    for(let i = 0; i < interfaces.length; i++) {
+    	const name = interfaces[i][2]
+        const rest = interfaces[i][6]
+        const body = rest.map((a) => a[0] + (a[1][0] ? a[1][0] : "") + (a[2] ? a[2][4][0][0] ? " = '" + a[2][4].join("") + "'" : " = " + a[2][4][1].join("") : '') + "," + "\n" )
+        x.push("enum " + name + " {\n" + body.join("") + "}")
+    }
+    return x
+  }
  
 }}
 
 start = models:(models)
 		namespaces:(namespaces)
     interfaces:(interfaces)
+    enums:(enums)
 
 {
       return {
 		    models: extractModels(models),
         namespaces: extractActions(namespaces),
-        interfaces: extractInterfaces(interfaces)
+        interfaces: extractInterfaces(interfaces),
+        enums: extractEnums(enums)
       };
     }
 
@@ -73,8 +86,17 @@ start = models:(models)
 models = model*
 namespaces = action*
 interfaces = interface*
+enums = enum*
 
 interface = "interface" S* name S* "{" S* interface_body* "}" S*
+
+enum = "enum" S* name S* "{" S* enum_body* "}" S*
+
+enum_body = value:IDENT name* enum_identifier? ","? S*
+
+enum_identifier = S* "=" S* "'"? (name* number*) "'"?
+
+number = [0-9]
 
 interface_body = value:IDENT name* S* name* S*
 

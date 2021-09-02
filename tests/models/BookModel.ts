@@ -1,12 +1,11 @@
-import { RootStoreBase, Data } from './base/root.base'
+import { Data } from './base/root.base'
+import { RootStore } from './root'
 import { BookModelBase, BookModelBaseType } from './base/model.base'
-
-export type BookType = BookModel
 
 export type BookData = BookModelBaseType
 
 export class BookModel extends BookModelBase {
-  constructor(getStore: () => RootStoreBase, data: Data) {
-    super(getStore, data)
+  constructor(store: () => RootStore, data: Data) {
+    super(store, data)
   }
 }

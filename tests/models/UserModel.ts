@@ -1,12 +1,11 @@
-import { RootStoreBase, Data } from './base/root.base'
+import { Data } from './base/root.base'
+import { RootStore } from './root'
 import { UserModelBase, UserModelBaseType } from './base/model.base'
-
-export type UserType = UserModel
 
 export type UserData = UserModelBaseType
 
 export class UserModel extends UserModelBase {
-  constructor(getStore: () => RootStoreBase, data: Data) {
-    super(getStore, data)
+  constructor(store: () => RootStore, data: Data) {
+    super(store, data)
   }
 }

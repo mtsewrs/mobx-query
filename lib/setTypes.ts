@@ -28,7 +28,7 @@ export function setTypes(
       const id = ids[j]
       const typeDef = kt.get(data[key][id].typename)!
       if (typeDef) {
-        model.set(id, new typeDef(self.getStore, data[key][id]))
+        model.set(id, new typeDef(self.store, data[key][id]))
       }
     }
   }

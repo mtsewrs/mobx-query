@@ -4,7 +4,7 @@
 import { observable, makeObservable } from 'mobx'
 import { MQStore, QueryOptions, StoreOptions, setTypes, getCollectionName } from '<%- props.test ? '../../../lib' : 'mobx-query' %>'
 <%_ for(var i=0; i < props.models.length; i++) { _%>
-import { <%= props.models[i].name %>Model, <%= props.models[i].name %>Data, <%= props.models[i].name %>Type } from '../<%= props.models[i].name %>Model'
+import { <%= props.models[i].name %>Model, <%= props.models[i].name %>Data } from '../<%= props.models[i].name %>Model'
 <%_ } _%>
 
 <%_ for(var i=0; i < props.config.interfaces.length; i++) { _%>
@@ -41,7 +41,7 @@ interface QueryVariables {
   <%= namespace.namespace %>: {
     <%_ for(var j=0; j < namespace.actions.length; j++) { _%>
       <%_ var action = namespace.actions[j]; _%>
-      <%= action.name %>: {<% action.args.length && action.args.forEach(function(arg) { %> <%= arg.name %>: <%= arg.type %>, <% }); %>}
+      <%= action.name %>: {<% action.variables.length && action.variables.forEach(function(arg) { %> <%= arg.name %>: <%= arg.type %>, <% }); %>}
     <%_ } _%>
   }
 <%_ } _%>
@@ -56,7 +56,7 @@ export interface Snapshot extends Data {
 
 export class RootStoreBase extends MQStore {
 <%_ for(var i=0; i < props.models.length; i++) { _%>
-    <%= props.plural(props.models[i].name.toLowerCase()) %> = observable.map<string, <%= props.models[i].name %>Type>()
+    <%= props.plural(props.models[i].name.toLowerCase()) %> = observable.map<string, <%= props.models[i].name %>Model>()
 <%_ } _%>
   kt: Map<any, any>
   rt: Set<any>

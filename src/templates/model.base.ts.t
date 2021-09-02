@@ -1,5 +1,5 @@
 const known<%= props.model.name %>Properties = ['id', 'typename', <% props.model.properties.forEach(function(model) { %> '<%= model.name %>', <% }) %>]
-export type <%= props.model.name %>ModelBaseType = Omit<<%= props.model.name %>ModelBase, 'update' | 'getStore' | 'relationNames' | '<%= props.model.relationNames[0] %>' <% props.model.relationNames.forEach(function(model, i) { %>
+export type <%= props.model.name %>ModelBaseType = Omit<<%= props.model.name %>ModelBase, 'update' | 'store' | 'relationNames' | '<%= props.model.relationNames[0] %>' <% props.model.relationNames.forEach(function(model, i) { %>
 <%_ if(i !== 0) { _%>
  | '<%= model %>'
 <%_ } _%>
@@ -14,7 +14,7 @@ export interface <%= props.model.name %>Fields {
 }
 
 export class <%= props.model.name %>ModelBase {
-  getStore?: () => RootStoreBase
+  store?: () => RootStore
  relationNames?: string[] = [<% props.model.relationNames.forEach(function(model) { %> '<%= model %>', <% }) %>]
  id: string
  typename: string
@@ -22,8 +22,8 @@ export class <%= props.model.name %>ModelBase {
 <%_ switch (props.model.properties[i].ref_type) {
 case 'ref' : _%>
     <%= props.model.properties[i].name %>_id?: string = null
-    get <%= props.model.properties[i].name %>(): <%= props.model.properties[i].type %>Type | undefined {
-      return this.getStore().<%= props.plural(props.model.properties[i].type.toLowerCase()) %>.get(this.<%= props.model.properties[i].name %>_id)
+    get <%= props.model.properties[i].name %>(): <%= props.model.properties[i].type %>Model | undefined {
+      return this.store().<%= props.plural(props.model.properties[i].type.toLowerCase()) %>.get(this.<%= props.model.properties[i].name %>_id)
     }
     set <%= props.model.properties[i].name %>(<%= props.model.properties[i].name %>) {
       this.<%= props.model.properties[i].name %>_id = <%= props.model.properties[i].name %>.id
@@ -31,8 +31,8 @@ case 'ref' : _%>
     <% break;
 case 'ref[]' : _%>
     <%= props.model.properties[i].name %>_id?: string[] = []
-    get <%= props.model.properties[i].name %>(): <%= props.model.properties[i].type %>Type[] | undefined {
-      return this.<%= props.model.properties[i].name %>_id.map( id => this.getStore().<%= props.plural(props.model.properties[i].type.toLowerCase()) %>.get(id))
+    get <%= props.model.properties[i].name %>(): <%= props.model.properties[i].type %>Model[] | undefined {
+      return this.<%= props.model.properties[i].name %>_id.map( id => this.store().<%= props.plural(props.model.properties[i].type.toLowerCase()) %>.get(id))
     }
     set <%= props.model.properties[i].name %>(<%= props.model.properties[i].name %>) {
       this.<%= props.model.properties[i].name %>_id = <%= props.model.properties[i].name %>.map(m => m.id)
@@ -44,8 +44,8 @@ default: _%>
 } _%>
 <%_ } _%>
 
-  constructor(getStore: () => RootStoreBase, data: any) {
-    this.getStore = getStore
+  constructor(store: () => RootStore, data: any) {
+    this.store = store
     const keys = Object.keys(data)
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i]
@@ -66,8 +66,6 @@ default: _%>
         }
       }
     }
-
-    this.typename = this.constructor.name
 
     makeObservable(this, {
       update: action,

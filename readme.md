@@ -2,7 +2,7 @@
 
 **DO NOT USE, NOT STABLE**
 
-Generates typescript mst or mobx models and a react client to query your json rpc api
+Generates typescript mobx models and query client for your json rpc api
 
 > In order for it to work your data fetched from the server must return "typename" and "id" property for the corresponding model
 
@@ -23,6 +23,7 @@ model User {
   name          string
   email         string
   password      string
+  role          Role
   books         Book @ref[]
   friend        User @ref
   favouriteBook Book @ref
@@ -48,7 +49,8 @@ model Publisher {
 
 action user {
  getUsers UsersReturn
- viewer UserType
+ viewer User
+ viewers User[]
  logout boolean
  login(username string, password string) User
  update(email string) User
@@ -56,6 +58,12 @@ action user {
 
 interface UsersReturn {
   users User[]
+}
+
+enum Role {
+  USER,
+  ADMIN,
+  SUPERUSER
 }
 ```
 

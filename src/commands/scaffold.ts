@@ -30,6 +30,7 @@ const scaffold: GluegunCommand = {
     if (!schema_src) throw new Error('[mobx-query] config file required')
 
     const config = parse(schema_src)
+
     buildModels(config)
     buildActions(config)
 
@@ -45,17 +46,11 @@ const scaffold: GluegunCommand = {
 
       for (let i = 0; i < model.length; i++) {
         const m = model[i]
-        let t = 0
-        interf = interf.replaceAll(m, (match) => {
-          t++
-          return t !== 1 ? m + 'Type' : match
-        })
+        interf = interf.replaceAll(m, m + 'Model')
       }
 
       return interf
     })
-
-    if (!config) throw new Error('[mobx-query] config file required')
 
     if (!config.models.length) {
       throw new Error('[mobx-query] scaffolding requires models')
@@ -69,7 +64,17 @@ const scaffold: GluegunCommand = {
       } else {
         await filesystem.removeAsync(`${out}/base`)
       }
-      const generated: string[] = []
+      const generated: {
+        type:
+          | 'success'
+          | 'info'
+          | 'debug'
+          | 'warning'
+          | 'error'
+          | 'highlight'
+          | 'muted'
+        message: string
+      }[] = []
       const promises: Promise<string | void>[] = []
 
       const models = config.models
@@ -92,21 +97,20 @@ const scaffold: GluegunCommand = {
       for (let i = 0; i < models.length; i++) {
         const model = models[i]
         if (i === 0) {
-          let initial_t = ''
-          initial_t =
-            initial_t +
-            `
+          let initial_t = `
               /* This is a mobx-query generated file, don't modify it manually */
               /* eslint-disable */
               /* tslint:disable */
               import { observable, makeObservable, computed, action } from 'mobx'
-              import { RootStoreBase } from './root.base'
+              import { RootStore } from '../root'
             `
           for (let j = 0; j < models.length; j++) {
             initial_t = initial_t.concat(
-              `import { ${models[j].name}Type } from '../${models[j].name}Model'\n`
+              `import { ${models[j].name}Model } from '../${models[j].name}Model'\n`
             )
           }
+
+          initial_t = initial_t.concat(config.enums.join('\n'))
 
           promises.push(
             filesystem.appendAsync(`${out}/base/model.base.ts`, initial_t)
@@ -128,9 +132,15 @@ const scaffold: GluegunCommand = {
               props: { model },
             })
           )
-          generated.push(` Generated ${model.name} Model`)
+          generated.push({
+            message: ` Generated ${model.name} Model`,
+            type: 'success',
+          })
         } else {
-          generated.push(` Skipping ${model.name} Model`)
+          generated.push({
+            message: ` Skipped ${model.name} Model`,
+            type: 'muted',
+          })
         }
       }
 
@@ -166,9 +176,9 @@ const scaffold: GluegunCommand = {
             },
           })
         )
-        generated.push(` Generated RootStore`)
+        generated.push({ message: ` Generated RootStore`, type: 'success' })
       } else {
-        generated.push(` Skipping RootStore`)
+        generated.push({ message: ` Skipped RootStore`, type: 'muted' })
       }
 
       await Promise.all(promises)
@@ -179,16 +189,20 @@ const scaffold: GluegunCommand = {
         } else {
           await system.run(`npx prettier --write "${out}/**/*.ts"`)
         }
-        generated.push(` Ran prettier successfully`)
+        generated.push({
+          message: ` Prettier ran successfully`,
+          type: 'success',
+        })
       } catch (error) {
-        generated.push(
-          ` Running prettier failed. Install prettier to auto format models`
-        )
+        generated.push({
+          message: ` Running prettier failed. Install prettier to auto format models`,
+          type: 'highlight',
+        })
       }
       spinner.succeed(` Model generation successfull`)
       for (let i = 0; i < generated.length; i++) {
         const s = generated[i]
-        print.success(s)
+        print[s.type](s.message)
       }
     } catch (error) {
       spinner.fail(error.message)

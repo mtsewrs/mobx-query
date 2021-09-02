@@ -9,14 +9,17 @@ export const buildActions = (config: any) => {
       }
       const a = nm.actions[j]
       action.name = a.name
-      action.type = modelNames.includes(a.type) ? a.type + 'Type' : a.type
-      action.args = []
-      if (a.variables) {
-        for (let k = 0; k < a.variables.length; k++) {
-          const v = a.variables[k]
-          action.args.push({ name: v.name, type: v.type })
+      action.variables = a.variables
+      let type = a.type
+      for (let k = 0; k < modelNames.length; k++) {
+        const m = modelNames[k]
+        if (type === m) {
+          type = a.type + 'Model'
+        } else if (type.replace('[]', '') === m) {
+          type = a.type.replace(m, m + 'Model')
         }
       }
+      action.type = type
 
       actions.push(action)
     }

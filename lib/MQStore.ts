@@ -63,7 +63,7 @@ export class MQStore {
     this.request = request
   }
 
-  getStore = () => {
+  store = () => {
     return this
   }
 
@@ -94,7 +94,7 @@ export class MQStore {
     if (hasQuery) {
       return hasQuery
     }
-    const query = new Query<T>(this.getStore, path, method, variables, options)
+    const query = new Query<T>(this.store, path, method, variables, options)
     this.__cacheQuery(path + JSON.stringify({ method, ...variables }), query)
     return query
   }
