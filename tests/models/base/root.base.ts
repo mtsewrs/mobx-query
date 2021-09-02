@@ -14,10 +14,10 @@ import { BookModel, BookData } from '../BookModel'
 import { BookTagModel, BookTagData } from '../BookTagModel'
 import { PublisherModel, PublisherData } from '../PublisherModel'
 
-interface UsersReturn {
+interface users_return {
   users: UserModel[]
 }
-interface UserReturn {
+interface user_return {
   user: UserModel
 }
 
@@ -53,8 +53,8 @@ export interface Data {
 
 interface QueryReturn {
   user: {
-    getUsers: UsersReturn
-    getUser: UserReturn
+    getUsers: users_return
+    getUser: user_return
     viewer: UserModel
     viewers: UserModel[]
     logout: boolean
