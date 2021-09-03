@@ -1,31 +1,40 @@
-import { GluegunCommand } from 'gluegun'
+import { cac } from 'cac'
+import fs from 'fs-jetpack'
+import which from 'which'
+import ora from 'ora'
+import * as colors from 'colors'
+import pluralize from 'pluralize'
+import execa from 'execa'
 
-import { buildActions } from '../utils/buildActions'
-import { buildModels } from '../utils/buildModels'
+import { buildActions } from './utils/buildActions'
+import { buildModels } from './utils/buildModels'
+import { parse } from './utils/parser'
+import { generate } from './utils/generate'
 
-import { parse } from '../utils/parser'
+colors.setTheme({
+  highlight: 'cyan',
+  info: 'reset',
+  warning: 'yellow',
+  success: 'green',
+  error: 'red',
+  line: 'grey',
+  muted: 'grey',
+})
 
-const scaffold: GluegunCommand = {
-  name: 'scaffold',
-  alias: 's',
-  description:
-    'Scaffold a typescript react client for fetching data from your json rpc api',
-  run: async (toolbox) => {
-    const {
-      print,
-      template: { generate },
-      strings,
-      system,
-      parameters,
-      filesystem,
-    } = toolbox
+const cli = cac()
 
-    const test = parameters.options.test || false
-    const out = parameters.options.out || 'src/models'
-    const force = parameters.options.force || false
-    const schema_src = filesystem.read(
-      filesystem.path(process.cwd(), './schema.query')
-    )
+cli
+  // Simply omit the command name, just brackets
+  .command('scaffold', 'Generate mobx models')
+  .option('--test', 'Run cli in test mode')
+  .option('--out <dir>', 'The out directory of models')
+  .option('--force', 'Delete models folder')
+  .action(async (options) => {
+    const test = options.test || false
+    const out = options.out || 'src/models'
+    const force = options.force || false
+
+    const schema_src = fs.read(fs.path(process.cwd(), './schema.query'))
 
     if (!schema_src) throw new Error('[mobx-query] config file required')
 
@@ -56,13 +65,13 @@ const scaffold: GluegunCommand = {
       throw new Error('[mobx-query] scaffolding requires models')
     }
 
-    const spinner = print.spin('Generating...')
+    const spinner = ora('Generating...').start()
 
     try {
       if (force) {
-        await filesystem.removeAsync(`${out}`)
+        await fs.removeAsync(`${out}`)
       } else {
-        await filesystem.removeAsync(`${out}/base`)
+        await fs.removeAsync(`${out}/base`)
       }
       const generated: {
         type:
@@ -84,8 +93,8 @@ const scaffold: GluegunCommand = {
           template: `root.base.ts.t`,
           target: `${out}/base/root.base.ts`,
           props: {
-            plural: strings.plural,
-            upperFirst: strings.upperFirst,
+            plural: pluralize.plural,
+            upperFirst: pluralize.upperFirst,
             config,
             namespaces: config.namespaces,
             models,
@@ -98,12 +107,12 @@ const scaffold: GluegunCommand = {
         const model = models[i]
         if (i === 0) {
           let initial_t = `
-              /* This is a mobx-query generated file, don't modify it manually */
-              /* eslint-disable */
-              /* tslint:disable */
-              import { observable, makeObservable, computed, action } from 'mobx'
-              import { RootStore } from '../root'
-            `
+            /* This is a mobx-query generated file, don't modify it manually */
+            /* eslint-disable */
+            /* tslint:disable */
+            import { observable, makeObservable, computed, action } from 'mobx'
+            import { RootStore } from '../root'
+          `
           for (let j = 0; j < models.length; j++) {
             initial_t = initial_t.concat(
               `import { ${models[j].name}Model } from '../${models[j].name}Model'\n`
@@ -112,19 +121,17 @@ const scaffold: GluegunCommand = {
 
           initial_t = initial_t.concat(config.enums.join('\n'))
 
-          promises.push(
-            filesystem.appendAsync(`${out}/base/model.base.ts`, initial_t)
-          )
+          await fs.appendAsync(`${out}/base/model.base.ts`, initial_t)
         }
 
         const m = await generate({
           template: `model.base.ts.t`,
-          props: { model, test, plural: strings.plural },
+          props: { model, test, plural: pluralize.plural },
         })
 
-        promises.push(filesystem.appendAsync(`${out}/base/model.base.ts`, m))
+        await fs.appendAsync(`${out}/base/model.base.ts`, m)
 
-        if (!filesystem.exists(`${out}/${model.name}Model.ts`)) {
+        if (!fs.exists(`${out}/${model.name}Model.ts`)) {
           promises.push(
             generate({
               template: `model.ts.t`,
@@ -165,7 +172,7 @@ const scaffold: GluegunCommand = {
         })
       )
 
-      if (!filesystem.exists(`${out}/root.ts`)) {
+      if (!fs.exists(`${out}/root.ts`)) {
         promises.push(
           generate({
             template: `root.ts.t`,
@@ -184,16 +191,18 @@ const scaffold: GluegunCommand = {
       await Promise.all(promises)
 
       try {
-        if (toolbox.packageManager.hasYarn()) {
-          await system.run(`yarn prettier --write "${out}/**/*.ts"`)
+        spinner.text = 'Running prettier'
+        if (which.sync('yarn', { nothrow: true })) {
+          await execa('yarn', ['prettier', '--write', `${out}/**/*.ts`])
         } else {
-          await system.run(`npx prettier --write "${out}/**/*.ts"`)
+          await execa('npx', ['prettier', '--write', `${out}/**/*.ts`])
         }
         generated.push({
           message: ` Prettier ran successfully`,
           type: 'success',
         })
       } catch (error) {
+        console.log(error)
         generated.push({
           message: ` Running prettier failed. Install prettier to auto format models`,
           type: 'highlight',
@@ -202,12 +211,12 @@ const scaffold: GluegunCommand = {
       spinner.succeed(` Model generation successfull`)
       for (let i = 0; i < generated.length; i++) {
         const s = generated[i]
-        print[s.type](s.message)
+        const print = (colors as any).default
+        console.log(print[s.type](s.message))
       }
     } catch (error) {
       spinner.fail(error.message)
     }
-  },
-}
+  })
 
-export default scaffold
+module.exports = { cli }

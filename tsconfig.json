@@ -15,9 +15,9 @@
     "esModuleInterop": true,
     "jsx": "react",
     "outDir": "./build",
-    "rootDir": "./src",
+    "rootDir": "./cli",
     "incremental": false
   },
   "exclude": ["node_modules", "test", "dist"],
-  "include": ["src"]
+  "include": ["cli"]
 }

@@ -25,9 +25,11 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "gluegun": "latest",
-    "peggy": "^1.2.0",
-    "ts-pegjs": "^1.1.1"
+    "cac": "^6.7.3",
+    "ejs": "^3.1.6",
+    "execa": "^5.1.1",
+    "pluralize": "^8.0.0",
+    "which": "^2.0.2"
   },
   "peerDependencies": {
     "mobx": "^6.2.0",
@@ -36,6 +38,9 @@
     "react-dom": "^17.0.1"
   },
   "devDependencies": {
+    "peggy": "^1.2.0",
+    "ts-pegjs": "^1.1.1",
+    "@types/ejs": "^3.1.0",
     "@rollup/plugin-typescript": "^8.2.3",
     "@testing-library/react": "^11.2.2",
     "@types/jest": "^26.0.23",

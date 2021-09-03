@@ -41,7 +41,7 @@ interface QueryVariables {
   <%= namespace.namespace %>: {
     <%_ for(var j=0; j < namespace.actions.length; j++) { _%>
       <%_ var action = namespace.actions[j]; _%>
-      <%= action.name %>: {<% action.variables.length && action.variables.forEach(function(arg) { %> <%= arg.name %>: <%= arg.type %>, <% }); %>}
+      <%= action.name %>: <%= !action.variables.length ? 'unknown' : '{' %><% action.variables.length && action.variables.forEach(function(arg) { %> <%= arg.name %>: <%= arg.type %>, <% }) %><%= action.variables.length && '}' %>
     <%_ } _%>
   }
 <%_ } _%>
@@ -82,7 +82,7 @@ export class RootStoreBase extends MQStore {
     T extends keyof QueryReturn,
     R extends ActionName<T>,
     V extends VariableName<T>
-  >(path: T, action: V | R, variables: QueryVariables[T][V], options: QueryOptions = {}) {
+  >(path: T, action: V | R, variables?: QueryVariables[T][V], options: QueryOptions = {}) {
     return this.rawQuery<QueryReturn[T][R]>(
       path,
       action as string,

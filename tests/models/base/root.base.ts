@@ -65,11 +65,11 @@ interface QueryReturn {
 
 interface QueryVariables {
   user: {
-    getUsers: {}
-    getUser: {}
-    viewer: {}
-    viewers: {}
-    logout: {}
+    getUsers: unknown
+    getUser: unknown
+    viewer: unknown
+    viewers: unknown
+    logout: unknown
     login: { username: string; password: string }
     update: { email: string }
   }
@@ -115,7 +115,7 @@ export class RootStoreBase extends MQStore {
   >(
     path: T,
     action: V | R,
-    variables: QueryVariables[T][V],
+    variables?: QueryVariables[T][V],
     options: QueryOptions = {}
   ) {
     return this.rawQuery<QueryReturn[T][R]>(

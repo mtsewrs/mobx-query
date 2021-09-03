@@ -94,7 +94,7 @@ describe('mobx store', () => {
 
     expect(snapshot.users['a'].id).toBe(users['a'].id)
 
-    await store.query('user', 'getUsers', {})
+    await store.query('user', 'getUsers')
 
     const store2 = new RootStore(
       { request: mockCallbackSuccess },

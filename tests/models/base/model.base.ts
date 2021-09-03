@@ -216,71 +216,6 @@ export class BookModelBase {
     }
   }
 }
-const knownPublisherProperties = ['id', 'typename', 'name', 'books']
-export type PublisherModelBaseType = Omit<
-  PublisherModelBase,
-  'update' | 'store' | 'relationNames' | 'books'
->
-
-export interface PublisherFields {
-  name?: string
-}
-
-export class PublisherModelBase {
-  store?: () => RootStore
-  relationNames?: string[] = ['books']
-  id: string
-  typename: string
-  name?: string = null
-  books_id?: string[] = []
-  get books(): BookModel[] | undefined {
-    return this.books_id.map((id) => this.store().books.get(id))
-  }
-  set books(books) {
-    this.books_id = books.map((m) => m.id)
-  }
-
-  constructor(store: () => RootStore, data: any) {
-    this.store = store
-    const keys = Object.keys(data)
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-      const fieldData = data[key]
-      if (this.relationNames.includes(key)) {
-        const relationKey = key + '_id'
-        if (Array.isArray(this[relationKey])) {
-          for (let i = 0; i < data[key].length; i++) {
-            const element = data[key][i]
-            this[relationKey].push(element.id)
-          }
-        } else {
-          this[relationKey] = fieldData.id
-        }
-      } else {
-        if (knownPublisherProperties.includes(key)) {
-          this[key] = fieldData
-        }
-      }
-    }
-
-    makeObservable(this, {
-      update: action,
-      name: observable,
-      books_id: observable,
-      books: computed,
-    })
-  }
-
-  update(snapshot: PublisherFields) {
-    const keys = Object.keys(snapshot)
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-      if (knownPublisherProperties.includes(key)) {
-        this[key] = snapshot[key]
-      }
-    }
-  }
-}
 const knownBookTagProperties = ['id', 'typename', 'name', 'books']
 export type BookTagModelBaseType = Omit<
   BookTagModelBase,
@@ -341,6 +276,71 @@ export class BookTagModelBase {
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i]
       if (knownBookTagProperties.includes(key)) {
+        this[key] = snapshot[key]
+      }
+    }
+  }
+}
+const knownPublisherProperties = ['id', 'typename', 'name', 'books']
+export type PublisherModelBaseType = Omit<
+  PublisherModelBase,
+  'update' | 'store' | 'relationNames' | 'books'
+>
+
+export interface PublisherFields {
+  name?: string
+}
+
+export class PublisherModelBase {
+  store?: () => RootStore
+  relationNames?: string[] = ['books']
+  id: string
+  typename: string
+  name?: string = null
+  books_id?: string[] = []
+  get books(): BookModel[] | undefined {
+    return this.books_id.map((id) => this.store().books.get(id))
+  }
+  set books(books) {
+    this.books_id = books.map((m) => m.id)
+  }
+
+  constructor(store: () => RootStore, data: any) {
+    this.store = store
+    const keys = Object.keys(data)
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      const fieldData = data[key]
+      if (this.relationNames.includes(key)) {
+        const relationKey = key + '_id'
+        if (Array.isArray(this[relationKey])) {
+          for (let i = 0; i < data[key].length; i++) {
+            const element = data[key][i]
+            this[relationKey].push(element.id)
+          }
+        } else {
+          this[relationKey] = fieldData.id
+        }
+      } else {
+        if (knownPublisherProperties.includes(key)) {
+          this[key] = fieldData
+        }
+      }
+    }
+
+    makeObservable(this, {
+      update: action,
+      name: observable,
+      books_id: observable,
+      books: computed,
+    })
+  }
+
+  update(snapshot: PublisherFields) {
+    const keys = Object.keys(snapshot)
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      if (knownPublisherProperties.includes(key)) {
         this[key] = snapshot[key]
       }
     }
