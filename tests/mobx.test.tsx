@@ -59,7 +59,7 @@ describe('mobx store', () => {
       }
     )
 
-    const query = store.query('user', 'getUsers', {})
+    const query = store.query('user', 'getUsers')
     expect(store.__promises.size).toBe(1)
     expect(store.users.size).toBe(1)
     const userA = store.users.get('a')
@@ -124,7 +124,7 @@ describe('mobx store', () => {
       }
     )
 
-    store.query('user', 'getUsers', {})
+    store.query('user', 'getUsers')
     expect(store.__promises.size).toBe(1)
     expect(store.users.size).toBe(1)
     await Promise.all(store.__promises.values())
@@ -138,16 +138,11 @@ describe('mobx store', () => {
     const store = new RootStore({
       request: mockCallbackSuccess,
     })
-    const data = await store.query(
-      'user',
-      'getUsers',
-      {},
-      {
-        initialData: {
-          users: [{ id: 'a', typename: 'User', email: 'a@test.com' }],
-        },
-      }
-    )
+    const data = await store.query('user', 'getUsers', undefined, {
+      initialData: {
+        users: [{ id: 'a', typename: 'User', email: 'a@test.com' }],
+      },
+    })
     expect(store.users.size).toBe(1)
     expect(data.users.length).toBe(1)
     const user = store.users.get('a')

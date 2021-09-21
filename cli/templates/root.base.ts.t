@@ -37,11 +37,14 @@ interface QueryReturn {
 
 interface QueryVariables {
 <%_ for(var i=0; i < props.namespaces.length; i++) { _%>
-    <%_ var namespace = props.namespaces[i]; _%>
+  <%_ var namespace = props.namespaces[i]; _%>
   <%= namespace.namespace %>: {
     <%_ for(var j=0; j < namespace.actions.length; j++) { _%>
       <%_ var action = namespace.actions[j]; _%>
-      <%= action.name %>: <%= !action.variables.length ? 'unknown' : '{' %><% action.variables.length && action.variables.forEach(function(arg) { %> <%= arg.name %>: <%= arg.type %>, <% }) %><%= action.variables.length && '}' %>
+      <%= action.name %>: <%= !action.variables.length ? 'unknown' : '{' %><% action.variables.length && action.variables.forEach(function(arg) { %>
+        <%= arg.name %>: <%= arg.type %>
+      <% }) %>
+      <%= action.variables.length && '}' %>
     <%_ } _%>
   }
 <%_ } _%>

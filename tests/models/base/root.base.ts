@@ -66,12 +66,23 @@ interface QueryReturn {
 interface QueryVariables {
   user: {
     getUsers: unknown
+
     getUser: unknown
+
     viewer: unknown
+
     viewers: unknown
+
     logout: unknown
-    login: { username: string; password: string }
-    update: { email: string }
+
+    login: {
+      username: string
+
+      password: string
+    }
+    update: {
+      email: string
+    }
   }
 }
 

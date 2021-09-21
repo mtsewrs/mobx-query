@@ -66,7 +66,7 @@ describe('useQuery', () => {
 
     function Page() {
       const { error, loading } = useQuery(
-        (store) => store.query('user', 'getUsers', {}),
+        (store) => store.query('user', 'getUsers'),
         {
           store,
         }
@@ -105,7 +105,9 @@ describe('useQuery', () => {
     function Page() {
       const { data: user, query } = useQuery(
         (store) =>
-          store.query('user', 'getUser', {}, { fromCache: ['User', 'a'] }),
+          store.query('user', 'getUser', undefined, {
+            fromCache: ['User', 'a'],
+          }),
         {
           store,
         }
@@ -165,7 +167,9 @@ describe('useQuery', () => {
     function Page() {
       const { data, query } = useQuery(
         (store) =>
-          store.query('user', 'getUser', {}, { fromCache: ['User', 'a'] }),
+          store.query('user', 'getUser', undefined, {
+            fromCache: ['User', 'a'],
+          }),
         {
           store,
           suspense: true,
@@ -194,13 +198,10 @@ describe('useQuery', () => {
     })
 
     function Page() {
-      const { data } = useQuery(
-        (store) => store.query('user', 'getUsers', {}),
-        {
-          store,
-          suspense: true,
-        }
-      )
+      const { data } = useQuery((store) => store.query('user', 'getUsers'), {
+        store,
+        suspense: true,
+      })
 
       return <>{data.users.map((u) => u.id).join('')}</>
     }
@@ -218,7 +219,7 @@ describe('useQuery', () => {
     const _store = new RootStore({
       request: mockCallbackSuccess,
     })
-    await _store.query('user', 'getUsers', {})
+    await _store.query('user', 'getUsers')
     const snapshot = _store.getSnapshot()
     const store = new RootStore(
       {
@@ -256,13 +257,10 @@ describe('useQuery', () => {
     })
 
     function Page() {
-      const { query } = useQuery(
-        (store) => store.query('user', 'getUsers', {}),
-        {
-          store,
-          suspense: true,
-        }
-      )
+      const { query } = useQuery((store) => store.query('user', 'getUsers'), {
+        store,
+        suspense: true,
+      })
 
       return <>{query.status}</>
     }
@@ -288,7 +286,7 @@ describe('useQuery', () => {
 
     function Page() {
       const { data, loading, query } = useQuery(
-        (store) => store.query('user', 'getUsers', {}),
+        (store) => store.query('user', 'getUsers'),
         {
           store,
         }

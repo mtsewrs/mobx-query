@@ -26,11 +26,10 @@ const cli = cac()
 cli
   // Simply omit the command name, just brackets
   .command('scaffold', 'Generate mobx models')
-  .option('--test', 'Run cli in test mode')
   .option('--out <dir>', 'The out directory of models')
   .option('--force', 'Delete models folder')
   .action(async (options) => {
-    const test = options.test || false
+    const test = process.env.NODE_ENV === 'test'
     const out = options.out || 'src/models'
     const force = options.force || false
 
@@ -202,7 +201,6 @@ cli
           type: 'success',
         })
       } catch (error) {
-        console.log(error)
         generated.push({
           message: ` Running prettier failed. Install prettier to auto format models`,
           type: 'highlight',

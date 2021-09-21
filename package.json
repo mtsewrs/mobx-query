@@ -1,6 +1,6 @@
 {
   "name": "mobx-query",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "Generate mobx models based on a model and action schema",
   "main": "./mobx.js",
   "types": "./mobx.d.ts",
@@ -11,7 +11,8 @@
     "format": "prettier --write **/*.{js,ts,tsx,json}",
     "build": "./build_lib.sh",
     "prepublishOnly": "yarn test && yarn build",
-    "test": "./bin/cli scaffold --force --test --out tests/models && jest",
+    "scaffold": "env NODE_ENV=test ./bin/cli scaffold --force --out tests/models",
+    "test": "yarn scaffold && jest",
     "generate": "yarn peggy --plugin ts-pegjs --extra-options-file pegconfig.json -o src/utils/parser.ts --cache src/utils/parser.pegjs"
   },
   "files": [
