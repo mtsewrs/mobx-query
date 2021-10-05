@@ -27,8 +27,8 @@ cli
   // Simply omit the command name, just brackets
   .command('scaffold', 'Generate mobx models')
   .option('--out <dir>', 'The out directory of models')
-  .option('--force', 'Delete models folder')
-  .action(async (options) => {
+  .option('--force', 'Delete everything related to mobx-query')
+  .action(async (options: { out?: string; force?: boolean }) => {
     const test = process.env.NODE_ENV === 'test'
     const out = options.out || 'src/models'
     const force = options.force || false

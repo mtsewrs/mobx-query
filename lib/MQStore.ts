@@ -1,6 +1,5 @@
 import { action, makeObservable, observable } from 'mobx'
 
-import { deflateHelper } from './deflateHelper'
 import { mergeHelper } from './mergeHelper'
 import { Query, QueryOptions } from './Query'
 
@@ -38,7 +37,6 @@ export class MQStore {
       __queryCacheData: observable,
       __queryCache: observable,
       rawQuery: action,
-      deflate: action,
       rawRequest: action,
       merge: action,
       getCollectionName: action,
@@ -69,10 +67,6 @@ export class MQStore {
 
   merge(data: unknown) {
     return mergeHelper(this, data)
-  }
-
-  deflate(data: unknown) {
-    return deflateHelper(data)
   }
 
   rawRequest(path: string, method: string, variables: any): Promise<any> {

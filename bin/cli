@@ -6,7 +6,7 @@ const devMode = process.env.NODE_ENV === 'test'
 
 if (!devMode) {
   // this runs from the compiled javascript source
-  const cli = require(`${__dirname}/../build/cli`).run(process.argv)
+  const cli = require(`${__dirname}/../build/cli`).cli
   async function run() {
     try {
       cli.parse(process.argv, { run: false })

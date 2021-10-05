@@ -102,10 +102,7 @@ export class Query<T = unknown> implements PromiseLike<T> {
     if (options.initialData) {
       // cache query and response
       if (this.fetchPolicy !== 'no-cache') {
-        _store.__cacheResponse(
-          this.queryKey,
-          _store.deflate(options.initialData)
-        )
+        _store.__cacheResponse(this.queryKey, options.initialData)
       }
 
       const data = _store.merge(options.initialData)
@@ -186,7 +183,7 @@ export class Query<T = unknown> implements PromiseLike<T> {
       .then((data: any) => {
         // cache query and response
         if (this.fetchPolicy !== 'no-cache') {
-          store.__cacheResponse(this.queryKey, store.deflate(data))
+          store.__cacheResponse(this.queryKey, data)
         }
         return Promise.resolve(store.merge(data))
       })
