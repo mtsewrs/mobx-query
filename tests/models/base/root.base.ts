@@ -27,7 +27,8 @@ const knownTypes: any = [
   ['BookTag', () => BookTagModel],
   ['Publisher', () => PublisherModel],
 ]
-const rootTypes = ['User', 'Book', 'BookTag', 'Publisher']
+const rootTypes = knownTypes.map((arr) => arr[0])
+
 export interface Data {
   users?: {
     [key: string]: {
@@ -111,12 +112,10 @@ export class RootStoreBase extends MQStore {
     })
 
     const kt = new Map()
-    const rt = new Set(rootTypes)
 
     setTypes(this, kt, knownTypes, data)
 
     this.kt = kt
-    this.rt = rt
   }
 
   query<
@@ -152,9 +151,6 @@ export class RootStoreBase extends MQStore {
 
   isKnownType(typename: string): boolean {
     return this.kt.has(typename)
-  }
-  isRootType(typename: string): boolean {
-    return this.rt.has(typename)
   }
   getTypeDef(typename: string): any {
     return this.kt.get(typename)!

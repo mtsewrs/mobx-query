@@ -19,9 +19,9 @@ export interface QueryOptions {
   noSsr?: boolean
   /**
    * specify the typename and id of the object you want to retrieve
+   * e.g. ['User', 'some-id']
    */
-  fromCache?: [string, string]
-  initialData?: any
+  cacheKey?: [string, string]
 }
 
 export type status = 'pending' | 'success' | 'error' | 'cache'
@@ -86,8 +86,8 @@ export class Query<T = unknown> implements PromiseLike<T> {
     }
 
     const inCache = _store.__queryCacheData.has(this.queryKey)
-    if (options.fromCache) {
-      const [modelName, key] = options.fromCache
+    if (options.cacheKey) {
+      const [modelName, key] = options.cacheKey
       const model = getCollectionName(modelName)
       if (!_store[model]) {
         throw new Error('[Query] typename not found')
@@ -97,22 +97,6 @@ export class Query<T = unknown> implements PromiseLike<T> {
         this.status = 'cache'
         this.data = _store[model].get(key)
       }
-    }
-
-    if (options.initialData) {
-      // cache query and response
-      if (this.fetchPolicy !== 'no-cache') {
-        _store.__cacheResponse(this.queryKey, options.initialData)
-      }
-
-      const data = _store.merge(options.initialData)
-      this.status = 'success'
-      this.loading = false
-      this.error = false
-      this.data = data
-      this.promise = Promise.resolve(data)
-
-      return
     }
 
     switch (this.fetchPolicy) {

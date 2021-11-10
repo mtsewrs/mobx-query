@@ -111,5 +111,3 @@ export class MQStore {
     this.__queryCacheData.set(key, response)
   }
 }
-
-export type StoreType = typeof MQStore

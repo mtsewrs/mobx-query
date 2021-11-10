@@ -12,7 +12,8 @@ import { <%= props.models[i].name %>Model, <%= props.models[i].name %>Data } fro
 <%_ } _%>
 
 const knownTypes: any = [<% props.models.forEach(function(model) { %> ['<%= model.name %>', () => <%= model.name %>Model], <% }); %>]
-const rootTypes = [<% props.models.forEach(function(model) { %> '<%= model.name %>', <% }); %>]
+const rootTypes = knownTypes.map(arr => arr[0])
+
 export interface Data {
   <%_ for(var i=0; i < props.models.length; i++) { _%>
     <%= props.plural(props.models[i].name.toLowerCase()) %>?: {
@@ -73,12 +74,10 @@ export class RootStoreBase extends MQStore {
     })
 
     const kt = new Map()
-    const rt = new Set(rootTypes)
 
     setTypes(this, kt, knownTypes, data)
 
     this.kt = kt
-    this.rt = rt
   }
 
   query<
@@ -109,9 +108,6 @@ export class RootStoreBase extends MQStore {
 
   isKnownType(typename: string): boolean {
     return this.kt.has(typename)
-  }
-  isRootType(typename: string): boolean {
-    return this.rt.has(typename)
   }
   getTypeDef(typename: string): any {
     return this.kt.get(typename)!

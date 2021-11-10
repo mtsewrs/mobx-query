@@ -106,7 +106,7 @@ describe('useQuery', () => {
       const { data: user, query } = useQuery(
         (store) =>
           store.query('user', 'getUser', undefined, {
-            fromCache: ['User', 'a'],
+            cacheKey: ['User', 'a'],
           }),
         {
           store,
@@ -122,31 +122,6 @@ describe('useQuery', () => {
     const MyPage = observer(Page)
     const rendered = render(<MyPage />)
     await waitFor(() => rendered.getByText('a'))
-    await waitFor(() => rendered.getByText('a@test.com'))
-  })
-
-  test('it should return initial data', async () => {
-    const store = new RootStore({
-      request: mockCallbackSucces3,
-    })
-
-    function Page() {
-      const { data } = useQuery(
-        (store) =>
-          store.query('user', 'getUsers', undefined, {
-            initialData: {
-              users: [{ id: 'a', typename: 'User', email: 'a@test.com' }],
-            },
-          }),
-        {
-          store,
-        }
-      )
-
-      return <>{data.users[0].email}</>
-    }
-    const MyPage = observer(Page)
-    const rendered = render(<MyPage />)
     await waitFor(() => rendered.getByText('a@test.com'))
   })
 
@@ -168,7 +143,7 @@ describe('useQuery', () => {
       const { data, query } = useQuery(
         (store) =>
           store.query('user', 'getUser', undefined, {
-            fromCache: ['User', 'a'],
+            cacheKey: ['User', 'a'],
           }),
         {
           store,

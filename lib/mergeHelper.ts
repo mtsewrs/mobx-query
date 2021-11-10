@@ -24,11 +24,7 @@ export function mergeHelper(store: any, data: any) {
       } else {
         // create a new one
         instance = new typeDef(store.store, snapshot)
-        if (store.isRootType(typename)) {
-          // register in the store if a root
-          store[store.getCollectionName(typename)].set(id, instance)
-        }
-        // instance.__setStore(store)
+        store[store.getCollectionName(typename)].set(id, instance)
       }
       return instance
     } else {

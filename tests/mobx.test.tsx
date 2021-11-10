@@ -133,20 +133,4 @@ describe('mobx store', () => {
     expect(user.email).toBe('b@test.com')
     expect(user.friend.id).toBe('a')
   })
-
-  test('it should return initial data', async () => {
-    const store = new RootStore({
-      request: mockCallbackSuccess,
-    })
-    const data = await store.query('user', 'getUsers', undefined, {
-      initialData: {
-        users: [{ id: 'a', typename: 'User', email: 'a@test.com' }],
-      },
-    })
-    expect(store.users.size).toBe(1)
-    expect(data.users.length).toBe(1)
-    const user = store.users.get('a')
-    expect(user.email).toBe('a@test.com')
-    expect(data.users[0].email).toBe('a@test.com')
-  })
 })
