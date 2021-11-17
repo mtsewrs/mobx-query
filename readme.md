@@ -122,26 +122,6 @@ export class UserModelBase {
 
   constructor(store: () => RootStore, data: any) {
     this.store = store
-    const keys = Object.keys(data)
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-      const fieldData = data[key]
-      if (this.relationNames.includes(key)) {
-        const relationKey = key + '_id'
-        if (Array.isArray(this[relationKey])) {
-          for (let i = 0; i < data[key].length; i++) {
-            const element = data[key][i]
-            this[relationKey].push(element.id)
-          }
-        } else {
-          this[relationKey] = fieldData.id
-        }
-      } else {
-        if (knownUserProperties.includes(key)) {
-          this[key] = fieldData
-        }
-      }
-    }
 
     makeObservable(this, {
       update: action,
