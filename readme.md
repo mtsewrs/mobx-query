@@ -170,87 +170,9 @@ export class UserModel extends UserModelBase {
 
 This file can safely be modified to extend its functionability
 
-Using the example schema a root class will also be generated called `[output]/base/root.base.ts`(shortend):
+### Root Store
 
-```typescript
-export class RootStoreBase extends MQStore {
-  users = observable.map<string, UserModel>()
-  books = observable.map<string, BookModel>()
-  booktags = observable.map<string, BookTagModel>()
-  publishers = observable.map<string, PublisherModel>()
-  kt: Map<any, any>
-  rt: Set<any>
-
-  constructor(options: StoreOptions, data: Snapshot) {
-    super(options, data)
-    makeObservable(this, {
-      users: observable,
-      books: observable,
-      booktags: observable,
-      publishers: observable,
-    })
-
-    const kt = new Map()
-
-    setTypes(this, kt, knownTypes, data)
-
-    this.kt = kt
-  }
-
-  query<
-    T extends keyof QueryReturn,
-    R extends ActionName<T>,
-    V extends VariableName<T>
-  >(
-    path: T,
-    action: V | R,
-    variables?: QueryVariables[T][V],
-    options: QueryOptions = {}
-  ) {
-    return this.rawQuery<QueryReturn[T][R]>(
-      path,
-      action as string,
-      variables,
-      options
-    )
-  }
-
-  getSnapshot(): Snapshot {
-    const snapshot = {}
-    for (let i = 0; i < rootTypes.length; i++) {
-      const collection = getCollectionName(rootTypes[i])
-      const obj = Object.fromEntries(this[collection])
-      snapshot[collection] = obj
-    }
-
-    snapshot['__queryCacheData'] = this.__queryCacheData
-
-    return snapshot
-  }
-
-  isKnownType(typename: string): boolean {
-    return this.kt.has(typename)
-  }
-  getTypeDef(typename: string): any {
-    return this.kt.get(typename)!
-  }
-}
-```
-
-with a corresponding root file called `[output]/root.ts`
-
-```typescript
-import { RootStoreBase, Snapshot } from './base/root.base'
-import { StoreOptions } from '../../lib'
-
-export class RootStore extends RootStoreBase {
-  constructor(options: StoreOptions, data?: Snapshot) {
-    super(options, data)
-  }
-}
-```
-
-which can also be extended
+TODO
 
 ## Query usage
 
