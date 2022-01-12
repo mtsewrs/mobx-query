@@ -154,7 +154,7 @@ export class UserModelBase {
 
 Another file called `[output]/UserModel.ts` will also me generated but only once and would look like:
 
-```typescript
+```ts
 import { Data } from './base/root.base'
 import { RootStore } from './root'
 import { UserModelBase, UserModelBaseType } from './base/model.base'
@@ -176,7 +176,7 @@ TODO
 
 ## Query usage
 
-```typescript
+```tsx
 import { useQuery, RootStore, StoreContext } from './models'
 
 const url = 'http://example.com/api/'
@@ -185,18 +185,18 @@ const store = new RootStore(
   {
     // send the request however you want, example using fetch
     request: async (path: string, method: string, params: object) => {
-      const r = await fetch(url + path, {
+      const response = await fetch(url + path, {
         method: 'POST',
         body: JSON.stringify({
           method,
           params,
         }),
       })
-      if (!r.ok) {
-        const resp = await r.json()
-        throw new Error(resp.message)
+      if (!responsed.ok) {
+        const error = await response.json()
+        throw new Error(error.message)
       }
-      return await r.json()
+      return await response.json()
     },
   },
   data // inital data

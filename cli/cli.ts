@@ -33,45 +33,45 @@ cli
     const out = options.out || 'src/models'
     const force = options.force || false
 
-    const schema_src = fs.read(fs.path(process.cwd(), './schema.query'))
-
-    if (!schema_src) throw new Error('[mobx-query] config file required')
-
-    const config = parse(schema_src)
-
-    buildModels(config)
-    buildActions(config)
-
-    const models = config.models.map((m) => m.name)
-    config.interfaces = config.interfaces.map((interf: string) => {
-      let model = []
-      for (let i = 0; i < models.length; i++) {
-        const m = models[i]
-        if (interf.includes(m)) {
-          model.push(m)
-        }
-      }
-
-      for (let i = 0; i < model.length; i++) {
-        const m = model[i]
-        interf = interf.replaceAll(m, m + 'Model')
-      }
-
-      return interf
-    })
-
-    if (!config.models.length) {
-      throw new Error('[mobx-query] scaffolding requires models')
-    }
-
     const spinner = ora('Generating...').start()
 
     try {
+      const schema_src = fs.read(fs.path(process.cwd(), './schema.query'))
+      if (!schema_src) throw new Error('[mobx-query] config file required')
+
+      const config = parse(schema_src)
+
+      buildModels(config)
+      buildActions(config)
+
+      const model_names = config.models.map((m) => m.name)
+      config.interfaces = config.interfaces.map((interf: string) => {
+        let model = []
+        for (let i = 0; i < model_names.length; i++) {
+          const m = model_names[i]
+          if (interf.includes(m)) {
+            model.push(m)
+          }
+        }
+
+        for (let i = 0; i < model.length; i++) {
+          const m = model[i]
+          interf = interf.replaceAll(m, m + 'Model')
+        }
+
+        return interf
+      })
+
+      if (!config.models.length) {
+        throw new Error('[mobx-query] scaffolding requires models')
+      }
+
       if (force) {
         await fs.removeAsync(`${out}`)
       } else {
         await fs.removeAsync(`${out}/base`)
       }
+
       const generated: {
         type:
           | 'success'
