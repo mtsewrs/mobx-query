@@ -36,8 +36,8 @@ export class Query<T = unknown> implements PromiseLike<T> {
   /**
    * this will return a single model if it exists in the cache otherwise it will return false
    */
-  get cache(): boolean | any {
-    return this.loading && this.status === 'cache' ? this.data : false
+  get cache(): T {
+    return this.loading && this.status === 'cache' ? this.data : null
   }
 
   store: () => MQStore

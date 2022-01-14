@@ -45,12 +45,10 @@ const mockCallbackSuccess2 = jest.fn().mockImplementationOnce(() =>
 
 const mockCallbackSucces3 = jest.fn().mockImplementation(() =>
   Promise.resolve({
-    user: {
-      id: 'a',
-      email: 'a@test.com',
-      typename: 'User',
-      password: 'asdasd',
-    },
+    id: 'a',
+    email: 'a@test.com',
+    typename: 'User',
+    password: 'asdasd',
   })
 )
 
@@ -105,7 +103,7 @@ describe('useQuery', () => {
     function Page() {
       const { data: user, query } = useQuery(
         (store) =>
-          store.query('user', 'getUser', undefined, {
+          store.query('user', 'viewer', undefined, {
             cacheKey: ['User', 'a'],
           }),
         {
@@ -117,52 +115,10 @@ describe('useQuery', () => {
         return <>{query.cache.id}</>
       }
 
-      return <>{user.user.email}</>
+      return <>{user.email}</>
     }
     const MyPage = observer(Page)
     const rendered = render(<MyPage />)
-    await waitFor(() => rendered.getByText('a'))
-    await waitFor(() => rendered.getByText('a@test.com'))
-  })
-
-  it('should return partial cache response with suspense', async () => {
-    const store = new RootStore(
-      {
-        request: mockCallbackSucces3,
-      },
-      {
-        users: {
-          a: {
-            id: 'a',
-            typename: 'User',
-          },
-        },
-      }
-    )
-    function Page() {
-      const { data, query } = useQuery(
-        (store) =>
-          store.query('user', 'getUser', undefined, {
-            cacheKey: ['User', 'a'],
-          }),
-        {
-          store,
-          suspense: true,
-        }
-      )
-
-      if (query.cache) {
-        return <>{query.cache.id}</>
-      }
-
-      return <>{data.user.email}</>
-    }
-    const MyPage = observer(Page)
-    const rendered = render(
-      <React.Suspense fallback="loading...">
-        <MyPage />
-      </React.Suspense>
-    )
     await waitFor(() => rendered.getByText('a'))
     await waitFor(() => rendered.getByText('a@test.com'))
   })
