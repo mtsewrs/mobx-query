@@ -3090,11 +3090,9 @@ ts-node@^10.0.0:
     yn "3.1.1"
 
 ts-pegjs@^1.1.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-1.2.1.tgz#9b2ef035a9411845eae575a18054824825f726a5"
-  integrity sha512-fvT1oBQKMO3+9MJSUELTIuwkMs0IXJ2iEUCIw6yIriz7agh+OAwAL5Q9y3WiqzxwNF+M+xuK676UVRZxBcaOmQ==
-  dependencies:
-    peggy "^1.2.0"
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-1.2.2.tgz#c990149c48a63e32525784caa4745deb25f083f2"
+  integrity sha512-nzxDbdHHKvYjfW05CBN8wvVXjx1+7uHg/aRiujcMNwUfdIaXzJ7Guw5gNI62scv7H2ymn2iHHZseDBIuO+B8gA==
 
 tslib@^2.3.0:
   version "2.3.1"
