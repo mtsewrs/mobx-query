@@ -52,43 +52,57 @@ export interface Data {
   }
 }
 
-interface QueryReturn {
-  user: {
-    getUsers: users_return
-    getUser: user_return
-    viewer: UserModel
-    viewers: UserModel[]
-    logout: boolean
-    login: UserModel
-    update: UserModel
-  }
+interface QueryInterface {
+  user:
+    | {
+        name: 'getUsers'
+        variables: unknown
+
+        returnType: users_return
+      }
+    | {
+        name: 'getUser'
+        variables: unknown
+
+        returnType: user_return
+      }
+    | {
+        name: 'viewer'
+        variables: unknown
+
+        returnType: UserModel
+      }
+    | {
+        name: 'viewers'
+        variables: unknown
+
+        returnType: UserModel[]
+      }
+    | {
+        name: 'logout'
+        variables: unknown
+
+        returnType: boolean
+      }
+    | {
+        name: 'login'
+        variables: {
+          username: string
+
+          password: string
+        }
+        returnType: UserModel
+      }
+    | {
+        name: 'update'
+        variables: {
+          email: string
+        }
+        returnType: UserModel
+      }
 }
 
-interface QueryVariables {
-  user: {
-    getUsers: unknown
-
-    getUser: unknown
-
-    viewer: unknown
-
-    viewers: unknown
-
-    logout: unknown
-
-    login: {
-      username: string
-
-      password: string
-    }
-    update: {
-      email: string
-    }
-  }
-}
-
-type ActionName<T extends keyof QueryReturn> = keyof QueryReturn[T]
-type VariableName<T extends keyof QueryVariables> = keyof QueryVariables[T]
+type namespace = keyof QueryInterface
 
 export interface Snapshot extends Data {
   __queryCacheData?: Map<string, any>
@@ -112,28 +126,35 @@ export class RootStoreBase extends MQStore {
     })
 
     const kt = new Map()
-
     setTypes(this, kt, knownTypes, data)
-
     this.kt = kt
   }
 
   query<
-    T extends keyof QueryReturn,
-    R extends ActionName<T>,
-    V extends VariableName<T>
+    Name extends QueryInterface[namespace]['name'],
+    Variables extends Extract<
+      QueryInterface[namespace],
+      { name: Name }
+    > extends {
+      variables: infer TVariables
+    }
+      ? TVariables
+      : unknown,
+    ReturnType extends Extract<
+      QueryInterface[namespace],
+      { name: Name }
+    > extends {
+      returnType: infer ReturnType
+    }
+      ? ReturnType
+      : unknown
   >(
-    path: T,
-    action: V | R,
-    variables?: QueryVariables[T][V],
+    path: namespace,
+    action: Name,
+    variables?: Variables,
     options: QueryOptions = {}
   ) {
-    return this.rawQuery<QueryReturn[T][R]>(
-      path,
-      action as string,
-      variables,
-      options
-    )
+    return this.rawQuery<ReturnType>(path, action, variables, options)
   }
 
   getSnapshot(): Snapshot {

@@ -53,6 +53,9 @@ const mockCallbackSucces3 = jest.fn().mockImplementation(() =>
 )
 
 describe('useQuery', () => {
+  const spy = jest.spyOn(console, 'error')
+  spy.mockImplementation(() => {})
+
   it('[mobx] error works', async () => {
     const errorMessage = 'Request failed with status code 400'
     const mockCallbackError = jest
@@ -124,6 +127,9 @@ describe('useQuery', () => {
   })
 
   it('[mobx] suspense mode works', async () => {
+    const spy = jest.spyOn(console, 'error')
+    spy.mockImplementation(() => {})
+
     const store = new RootStore({
       request: mockCallbackSuccess,
     })
@@ -175,8 +181,6 @@ describe('useQuery', () => {
   })
 
   it('suspend mode error works', async () => {
-    const spy = jest.spyOn(console, 'error')
-    spy.mockImplementation(() => {})
 
     const errorText = 'error boundary text'
 
@@ -206,8 +210,6 @@ describe('useQuery', () => {
     await waitFor(() => rendered.getByText('loading...'))
     await waitFor(() => rendered.getByText(errorText))
     expect(mockCallbackError).toHaveBeenCalledTimes(1)
-
-    spy.mockRestore()
   })
 
   it('clearing data works', async () => {

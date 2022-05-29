@@ -24,35 +24,25 @@ export interface Data {
   <%_ } _%>
 }
 
-interface QueryReturn {
-<%_ for(var i=0; i < props.namespaces.length; i++) { _%>
-    <%_ var namespace = props.namespaces[i]; _%>
-  <%= namespace.namespace %>: {
-    <%_ for(var j=0; j < namespace.actions.length; j++) { _%>
-      <%_ var action = namespace.actions[j]; _%>
-      <%= action.name %>: <%= action.type %>
-    <%_ } _%>
-  }
-<%_ } _%>
-}
-
-interface QueryVariables {
+interface QueryInterface {
 <%_ for(var i=0; i < props.namespaces.length; i++) { _%>
   <%_ var namespace = props.namespaces[i]; _%>
-  <%= namespace.namespace %>: {
+  <%= namespace.namespace %>: 
     <%_ for(var j=0; j < namespace.actions.length; j++) { _%>
       <%_ var action = namespace.actions[j]; _%>
-      <%= action.name %>: <%= !action.variables.length ? 'unknown' : '{' %><% action.variables.length && action.variables.forEach(function(arg) { %>
-        <%= arg.name %>: <%= arg.type %>
-      <% }) %>
-      <%= action.variables.length && '}' %>
-    <%_ } _%>
-  }
+      | { 
+          name: '<%= action.name %>',
+          variables: <%= !action.variables.length ? 'unknown,' : '{' %><% action.variables.length && action.variables.forEach(function(arg) { %>
+            <%= arg.name %>: <%= arg.type %>
+          <% }) %>
+          <%= action.variables.length && '},' %>
+          returnType: <%= action.type %>
+      }
+  <%_ } _%>
 <%_ } _%>
 }
 
-type ActionName<T extends keyof QueryReturn> = keyof QueryReturn[T]
-type VariableName<T extends keyof QueryVariables> = keyof QueryVariables[T]
+type namespace = keyof QueryInterface
 
 export interface Snapshot extends Data {
   __queryCacheData?: Map<string, any>
@@ -74,20 +64,37 @@ export class RootStoreBase extends MQStore {
     })
 
     const kt = new Map()
-
     setTypes(this, kt, knownTypes, data)
-
     this.kt = kt
   }
 
   query<
-    T extends keyof QueryReturn,
-    R extends ActionName<T>,
-    V extends VariableName<T>
-  >(path: T, action: V | R, variables?: QueryVariables[T][V], options: QueryOptions = {}) {
-    return this.rawQuery<QueryReturn[T][R]>(
+    Name extends QueryInterface[namespace]['name'],
+    Variables extends Extract<
+      QueryInterface[namespace],
+      { name: Name }
+    > extends {
+      variables: infer TVariables
+    }
+      ? TVariables
+      : unknown,
+    ReturnType extends Extract<
+      QueryInterface[namespace],
+      { name: Name }
+    > extends {
+      returnType: infer ReturnType
+    }
+      ? ReturnType
+      : unknown
+  >(
+    path: namespace,
+    action: Name,
+    variables?: Variables,
+    options: QueryOptions = {}
+  ) {
+    return this.rawQuery<ReturnType>(
       path,
-      action as string,
+      action,
       variables,
       options
     )
